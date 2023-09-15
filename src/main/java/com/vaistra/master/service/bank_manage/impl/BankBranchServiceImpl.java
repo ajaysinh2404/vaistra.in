@@ -188,7 +188,7 @@ public class BankBranchServiceImpl implements BankBranchService {
             keyword10 = Boolean.FALSE;
         }
 
-       /* Page<BankBranch> bankBranchPage = bankBranchRepository.findByBank_BankNameContainingIgnoreCaseOrState_StateNameContainingIgnoreCaseOrDistrict_DistrictNameContainingIgnoreCaseOrBranchNameContainingIgnoreCaseOrBranchCodeContainingIgnoreCaseOrBranchAddressContainingIgnoreCaseOrBranchIfscContainingIgnoreCaseOrBranchPhoneNumberContainingIgnoreCaseOrBranchIdOrIsActive(pageable,keyword,keyword,keyword,keyword,keyword,keyword,keyword,keyword,keyword9,keyword10);
+       Page<BankBranch> bankBranchPage = bankBranchRepository.findByBank_BankLongNameContainingIgnoreCaseOrState_StateNameContainingIgnoreCaseOrDistrict_DistrictNameContainingIgnoreCaseOrBranchNameContainingIgnoreCaseOrBranchCodeContainingIgnoreCaseOrBranchAddressContainingIgnoreCaseOrBranchIfscContainingIgnoreCaseOrBranchPhoneNumberContainingIgnoreCaseOrBranchIdOrIsActive(pageable,keyword,keyword,keyword,keyword,keyword,keyword,keyword,keyword,keyword9,keyword10);
 
         List<BankBranchDto> bankBranches = appUtils_bank.bankBranchesToDtos(bankBranchPage.getContent());
 
@@ -199,8 +199,7 @@ public class BankBranchServiceImpl implements BankBranchService {
                 .totalPages(bankBranchPage.getTotalPages())
                 .isLastPage(bankBranchPage.isLast())
                 .data(bankBranches)
-                .build();*/
-        return null;
+                .build();
 
     }
 

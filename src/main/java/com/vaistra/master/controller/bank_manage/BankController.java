@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/bank")
@@ -67,5 +68,10 @@ public class BankController {
         headers.setContentType(MediaType.IMAGE_JPEG); // Adjust content type based on your image type
 
         return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
+    }
+
+    @GetMapping("/active")
+    public ResponseEntity<List<BankDto>> getAllActiveBank(){
+        return new ResponseEntity<>(bankService.getAllActiveBank(),HttpStatus.OK);
     }
 }

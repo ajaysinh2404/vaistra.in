@@ -3,8 +3,10 @@ package com.vaistra.master.service.bank_manage.impl;
 import com.vaistra.master.dto.HttpResponse;
 import com.vaistra.master.dto.bank_manage.BankDto;
 import com.vaistra.master.entity.bank_manage.Bank;
+import com.vaistra.master.entity.bank_manage.BankBranch;
 import com.vaistra.master.exception.DuplicateEntryException;
 import com.vaistra.master.exception.FileSizeExceedException;
+import com.vaistra.master.exception.NoDataFoundException;
 import com.vaistra.master.exception.ResourceNotFoundException;
 import com.vaistra.master.repository.bank_manage.BankRepository;
 import com.vaistra.master.service.bank_manage.BankService;
@@ -185,5 +187,16 @@ public class BankServiceImpl implements BankService {
     public byte[] getBankLogo(Integer bankId) {
         Bank bank = bankRepository.findById(bankId).orElseThrow(()->new ResourceNotFoundException("Bank not found with given id: " + bankId));
         return bank.getBankLogo();
+    }
+
+    @Transactional
+    @Override
+    public List<BankDto> getAllActiveBank() {
+        List<Bank> banks = bankRepository.findAllByIsActive(true);
+
+        if (banks.isEmpty())
+            throw new NoDataFoundException("Bank Data not available...!");
+
+        return appUtilsBank.banksToDtos(banks);
     }
 }

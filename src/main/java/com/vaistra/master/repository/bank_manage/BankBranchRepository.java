@@ -28,7 +28,7 @@ public interface BankBranchRepository extends JpaRepository<BankBranch, Integer>
 
     BankBranch findByBranchMicrIgnoreCase(String branchMicr);
 
-    //Page<BankBranch> findByBank_BankNameContainingIgnoreCaseOrState_StateNameContainingIgnoreCaseOrDistrict_DistrictNameContainingIgnoreCaseOrBranchNameContainingIgnoreCaseOrBranchCodeContainingIgnoreCaseOrBranchAddressContainingIgnoreCaseOrBranchIfscContainingIgnoreCaseOrBranchPhoneNumberContainingIgnoreCaseOrBranchIdOrIsActive(Pageable pageable, String keyword, String keyword2,String keyword3, String keyword4, String keyword5, String keyword6, String keyword7, String keyword8, Integer keyword9, Boolean keyword10);
+    Page<BankBranch> findByBank_BankLongNameContainingIgnoreCaseOrState_StateNameContainingIgnoreCaseOrDistrict_DistrictNameContainingIgnoreCaseOrBranchNameContainingIgnoreCaseOrBranchCodeContainingIgnoreCaseOrBranchAddressContainingIgnoreCaseOrBranchIfscContainingIgnoreCaseOrBranchPhoneNumberContainingIgnoreCaseOrBranchIdOrIsActive(Pageable pageable, String keyword, String keyword2,String keyword3, String keyword4, String keyword5, String keyword6, String keyword7, String keyword8, Integer keyword9, Boolean keyword10);
 
     List<BankBranch> findAllByIsActive(boolean isActive);
 
