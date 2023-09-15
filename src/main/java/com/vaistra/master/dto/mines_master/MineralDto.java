@@ -42,9 +42,7 @@ public class MineralDto {
     @Size(min = 6, max = 8, message = "HSN code should have a length between 6 and 8 characters.")
     private String hsnCode;
 
-    @NotEmpty(message = "Grade shouldn't be empty.")
     @NotNull(message = "Grade shouldn't be null.")
-    @NotBlank(message = "Grade shouldn't be blank.")
     private String[] grade;
 
 }

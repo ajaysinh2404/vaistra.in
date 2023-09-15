@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -29,5 +32,5 @@ public class Mineral {
     private String hsnCode;
 
     @Column(name = "grade")
-    private String[] grade;
+    private List<String> grade = new ArrayList<>();
 }
