@@ -4,6 +4,7 @@ import com.vaistra.master.dto.HttpResponse;
 import com.vaistra.master.dto.bank_manage.BankDto;
 import com.vaistra.master.entity.bank_manage.Bank;
 import com.vaistra.master.exception.DuplicateEntryException;
+import com.vaistra.master.exception.FileSizeExceedException;
 import com.vaistra.master.exception.ResourceNotFoundException;
 import com.vaistra.master.repository.bank_manage.BankRepository;
 import com.vaistra.master.service.bank_manage.BankService;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -33,6 +35,7 @@ public class BankServiceImpl implements BankService {
         this.bankRepository = bankRepository;
     }
 
+    @Transactional
     @Override
     public String addBank(BankDto bankDto, MultipartFile file) throws IOException {
         String extension = file.getOriginalFilename();
@@ -51,6 +54,12 @@ public class BankServiceImpl implements BankService {
             throw new ResourceNotFoundException("Only JPG,PNG allowed..!");
         }
 
+        long fileSizeLimit = 5120L;
+        if (file.getSize() > fileSizeLimit) {
+            throw new FileSizeExceedException("File size exceeds the limit (5KB).");
+        }
+
+
         Bank bank = new Bank();
 
         bank.setBankLogo(file.getBytes());
@@ -63,6 +72,7 @@ public class BankServiceImpl implements BankService {
         return "Record added successfully.";
     }
 
+    @Transactional
     @Override
     public String updateBank(Integer bankId, BankDto bankDto, MultipartFile file) throws IOException {
         String extension = file.getOriginalFilename();
@@ -88,6 +98,11 @@ public class BankServiceImpl implements BankService {
         assert extension != null;
         if(!appUtilsBank.isSupportedExtension(extension)){
             throw new ResourceNotFoundException("Only JPG,PNG allowed..!");
+        }
+
+        long fileSizeLimit = 5120L;
+        if (file.getSize() > fileSizeLimit) {
+            throw new FileSizeExceedException("File size exceeds the limit (5KB).");
         }
 
         bank.setBankLogo(file.getBytes());
@@ -128,6 +143,7 @@ public class BankServiceImpl implements BankService {
                 .build();
     }
 
+    @Transactional
     @Override
     public HttpResponse getBankByKeyword(int pageNo, int pageSize, String sortBy, String sortDirection, String keyword) {
         Sort sort = (sortDirection.equalsIgnoreCase("asc")) ?
@@ -162,6 +178,7 @@ public class BankServiceImpl implements BankService {
                 .isLastPage(bankPage.isLast())
                 .data(banks)
                 .build();
+
     }
 
     @Override

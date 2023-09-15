@@ -1,8 +1,10 @@
 package com.vaistra.master.utils.bank_manage;
 
+import com.vaistra.master.dto.bank_manage.BankBranchDto;
 import com.vaistra.master.dto.bank_manage.BankDto;
 import com.vaistra.master.dto.mines_master.VehicleDto;
 import com.vaistra.master.entity.bank_manage.Bank;
+import com.vaistra.master.entity.bank_manage.BankBranch;
 import com.vaistra.master.entity.mines_master.Vehicle;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
@@ -56,4 +58,31 @@ public class AppUtils_Bank {
     }
 
     //____________________________________________________________________Bank Utility Methods End_______________________________________________________
+
+    //____________________________________________________________________Bank Branch Utility Methods Start_____________________________________________________
+
+    public BankBranchDto bankBranchToDto(BankBranch bankBranch) {
+
+        return this.modelMapper.map(bankBranch,BankBranchDto.class);
+    }
+
+    public BankBranch dtoToBankBranch(BankBranchDto bankBranchDto) {
+
+        return this.modelMapper.map(bankBranchDto,BankBranch.class);
+    }
+
+    public List<BankBranchDto> bankBranchesToDtos(List<BankBranch> bankBranches) {
+        java.lang.reflect.Type targetListType = new TypeToken<List<BankBranchDto>>() {}.getType();
+        return modelMapper.map(bankBranches, targetListType);
+    }
+
+    public List<BankBranch> dtosToBankBranches(List<BankBranchDto> dtos) {
+        java.lang.reflect.Type targetListType = new TypeToken<List<BankBranch>>() {}.getType();
+        return modelMapper.map(dtos, targetListType);
+
+    }
+
+    //____________________________________________________________________Bank Branch Utility Methods End_______________________________________________________
+
+
 }

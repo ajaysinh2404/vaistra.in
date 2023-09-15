@@ -90,6 +90,14 @@ public class GlobalExceptionHandler {
         return errorMap;
     }
 
+    @ExceptionHandler(FileSizeExceedException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleFileSizeExceedException(FileSizeExceedException ex)
+    {
+        Map<String, String> errorMap = new HashMap<>();
+        errorMap.put("errorMessage", ex.getMessage());
+        return errorMap;
+    }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(NoDataFoundException.class)

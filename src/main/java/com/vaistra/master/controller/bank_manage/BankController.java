@@ -2,7 +2,7 @@ package com.vaistra.master.controller.bank_manage;
 
 import com.vaistra.master.dto.HttpResponse;
 import com.vaistra.master.dto.bank_manage.BankDto;
-import com.vaistra.master.dto.mines_master.DesignationDto;
+import com.vaistra.master.exception.FileSizeExceedException;
 import com.vaistra.master.service.bank_manage.BankService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,13 +27,14 @@ public class BankController {
     }
 
     @PostMapping
-    public ResponseEntity<String> addBank(@RequestBody @Valid BankDto bankDto, @RequestPart MultipartFile file) throws IOException {
+    public ResponseEntity<String> addBank(@RequestPart @Valid BankDto bankDto, @RequestPart MultipartFile file) throws IOException {
         return new ResponseEntity<>(bankService.addBank(bankDto,file), HttpStatus.OK);
     }
 
     @PutMapping("/{bankId}")
-    public ResponseEntity<String> updateBank(@PathVariable Integer bankId, @RequestBody @Valid BankDto bankDto, @RequestPart MultipartFile file) throws IOException {
-        return new ResponseEntity<>(bankService.updateBank(bankId,bankDto,file), HttpStatus.OK);
+    public ResponseEntity<String> updateBank(@PathVariable Integer bankId, @RequestPart @Valid BankDto bankDto, @RequestPart MultipartFile file) throws IOException {
+            return new ResponseEntity<>(bankService.updateBank(bankId,bankDto,file), HttpStatus.OK);
+
     }
 
     @DeleteMapping("/{bankId}")
