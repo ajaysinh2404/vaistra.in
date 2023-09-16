@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -22,6 +25,9 @@ public class Bank {
 
     @Column(name = "bank_long_name")
     private String bankLongName;
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "bank")
+    private List<BankBranch> branches = new ArrayList<>();
 
     @Lob
     @Column(name = "bank_logo")
