@@ -1,5 +1,8 @@
 package com.vaistra.master.exception;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.io.DecodingException;
+import io.jsonwebtoken.security.SignatureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
@@ -135,6 +138,12 @@ public class GlobalExceptionHandler {
         return errorMap;
     }
 
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(IllegalArgumentException.class)
+    public Map<String, String> handleIllegalArgumentException(IllegalArgumentException ex)
+    {
+        return Map.of("errorMessage", ex.getMessage());
+    }
     @ResponseStatus(HttpStatus.FORBIDDEN)
     @ExceptionHandler(AccessDeniedException.class)
     public Map<String, String> handleAccessDeniedException(AccessDeniedException ex)
@@ -142,9 +151,22 @@ public class GlobalExceptionHandler {
         return Map.of("errorMessage", ex.getMessage());
     }
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(IllegalArgumentException.class)
-    public Map<String, String> handleIllegalArgumentException(IllegalArgumentException ex)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ExceptionHandler(SignatureException.class)
+    public Map<String, String> handleSignatureException(SignatureException ex)
+    {
+        return Map.of("errorMessage", "Invalid JWT Token");
+    }
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ExceptionHandler(ExpiredJwtException.class)
+    public Map<String, String> handleExpiredJwtException(ExpiredJwtException ex)
+    {
+        return Map.of("errorMessage", ex.getMessage());
+    }
+
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ExceptionHandler(DecodingException.class)
+    public Map<String, String> handleDecodingException(DecodingException ex)
     {
         return Map.of("errorMessage", ex.getMessage());
     }
