@@ -9,9 +9,9 @@ import java.util.List;
 public interface BankBranchService {
     public String addBankBranch(BankBranchDto bankBranchDto);
 
-    public String updateBankBranch(Integer bankBranchId, BankBranchDto bankBranchDto);
+    public String updateBankBranch(Integer branchId, BankBranchDto bankBranchDto);
 
-    public String deleteBankBranch(Integer bankBranchId);
+    public String deleteBankBranch(Integer branchId);
 
     public HttpResponse getBankBranch(int pageNo, int pageSize, String sortBy, String sortDirection);
 

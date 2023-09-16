@@ -29,8 +29,7 @@ public class BankBranchDto {
     @NotEmpty(message = "Branch Code shouldn't be empty.")
     @NotNull(message = "Branch Code  shouldn't be null.")
     @NotBlank(message = "Branch Code shouldn't be blank.")
-    @Pattern(regexp = "^[A-Za-z0-9]", message = "Invalid Branch Code.")
-    @Size(min = 3, max = 6, message = "Invalid Branch Code length.")
+    @Pattern(regexp = "^[A-Za-z0-9]{6}", message = "Invalid Branch Code.")
     private String branchCode;
 
     @NotNull(message = "Branch address shouldn't be null.")
@@ -39,7 +38,7 @@ public class BankBranchDto {
     @NotEmpty(message = "Branch IFSC shouldn't be empty.")
     @NotNull(message = "Branch IFSC  shouldn't be null.")
     @NotBlank(message = "Branch IFSC shouldn't be blank.")
-    @Pattern(regexp = "^[A-Z]{4}0[A-Z0-9]{6}$\n", message = "Invalid IFSC Code.")
+    @Pattern(regexp = "^[A-Z]{4}0[A-Z0-9]{6}$", message = "Invalid IFSC Code.")
     private String branchIfsc;
 
     @NotEmpty(message = "Phone Number shouldn't be empty.")

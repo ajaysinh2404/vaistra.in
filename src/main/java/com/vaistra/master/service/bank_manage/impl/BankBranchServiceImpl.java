@@ -23,6 +23,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -89,8 +90,8 @@ public class BankBranchServiceImpl implements BankBranchService {
     }
 
     @Override
-    public String updateBankBranch(Integer bankBranchId, BankBranchDto bankBranchDto) {
-        BankBranch bankBranch = bankBranchRepository.findById(bankBranchId).orElseThrow(()->new ResourceNotFoundException("Bank Branch not found with given id: " + bankBranchId));
+    public String updateBankBranch(Integer branchId, BankBranchDto bankBranchDto) {
+        BankBranch bankBranch = bankBranchRepository.findById(branchId).orElseThrow(()->new ResourceNotFoundException("Bank Branch not found with given id: " + branchId));
 
         BankBranch bankBranchWithSameName = bankBranchRepository.findByBranchNameIgnoreCase(bankBranchDto.getBranchName());
 
@@ -139,9 +140,9 @@ public class BankBranchServiceImpl implements BankBranchService {
     }
 
     @Override
-    public String deleteBankBranch(Integer bankBranchId) {
-        BankBranch bankBranch = bankBranchRepository.findById(bankBranchId).orElseThrow(()->new ResourceNotFoundException("Bank Branch not found with given id: " + bankBranchId));
-        bankBranchRepository.deleteById(bankBranchId);
+    public String deleteBankBranch(Integer branchId) {
+        BankBranch bankBranch = bankBranchRepository.findById(branchId).orElseThrow(()->new ResourceNotFoundException("Bank Branch not found with given id: " + branchId));
+        bankBranchRepository.deleteById(branchId);
         return "Record deleted successfully.";
     }
 
@@ -166,6 +167,7 @@ public class BankBranchServiceImpl implements BankBranchService {
                 .build();
     }
 
+    @Transactional
     @Override
     public HttpResponse getBankBranchByKeyword(int pageNo, int pageSize, String sortBy, String sortDirection, String keyword) {
         Sort sort = (sortDirection.equalsIgnoreCase("asc")) ?
@@ -203,6 +205,7 @@ public class BankBranchServiceImpl implements BankBranchService {
 
     }
 
+    @Transactional
     @Override
     public List<BankBranchDto> getAllActiveBankBranch() {
         List<BankBranch> bankBranches = bankBranchRepository.findAllByIsActive(true);

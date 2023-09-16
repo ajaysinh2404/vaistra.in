@@ -26,21 +26,21 @@ public class BankBranchContoller {
         return new ResponseEntity<>(bankBranchService.addBankBranch(bankBranchDto), HttpStatus.OK);
     }
 
-    @PutMapping("/{bankBranchId}")
-    public ResponseEntity<String> updateBankBranch(@PathVariable Integer bankBranchId, @RequestBody @Valid BankBranchDto bankBranchDto){
-        return new ResponseEntity<>(bankBranchService.updateBankBranch(bankBranchId,bankBranchDto), HttpStatus.OK);
+    @PutMapping("/{branchId}")
+    public ResponseEntity<String> updateBankBranch(@PathVariable Integer branchId, @RequestBody @Valid BankBranchDto bankBranchDto){
+        return new ResponseEntity<>(bankBranchService.updateBankBranch(branchId,bankBranchDto), HttpStatus.OK);
 
     }
 
-    @DeleteMapping("/{bankBranchId}")
-    public ResponseEntity<String> deleteBankBranch(@PathVariable Integer bankBranchId){
-        return new ResponseEntity<>(bankBranchService.deleteBankBranch(bankBranchId),HttpStatus.OK);
+    @DeleteMapping("/{branchId}")
+    public ResponseEntity<String> deleteBankBranch(@PathVariable Integer branchId){
+        return new ResponseEntity<>(bankBranchService.deleteBankBranch(branchId),HttpStatus.OK);
     }
 
     @GetMapping
     public ResponseEntity<HttpResponse> getBankBranch(@RequestParam(value = "pageNo", defaultValue = "0", required = false) Integer pageNo,
                                                 @RequestParam(value = "pageSize", defaultValue = "10", required = false) Integer pageSize,
-                                                @RequestParam(value = "sortBy", defaultValue = "bankBranchId", required = false) String sortBy,
+                                                @RequestParam(value = "sortBy", defaultValue = "branchId", required = false) String sortBy,
                                                 @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection){
         return new ResponseEntity<>(bankBranchService.getBankBranch(pageNo,pageSize,sortBy,sortDirection),HttpStatus.OK);
     }
@@ -48,7 +48,7 @@ public class BankBranchContoller {
     @GetMapping("/search")
     public ResponseEntity<HttpResponse> getBankBranchByKeyword(@RequestParam(value = "pageNo", defaultValue = "0", required = false) Integer pageNo,
                                                          @RequestParam(value = "pageSize", defaultValue = "10", required = false) Integer pageSize,
-                                                         @RequestParam(value = "sortBy", defaultValue = "bankBranchId", required = false) String sortBy,
+                                                         @RequestParam(value = "sortBy", defaultValue = "branchId", required = false) String sortBy,
                                                          @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection,
                                                          @RequestParam(value = "keyword", defaultValue = "", required = false) String keyword){
         return new ResponseEntity<>(bankBranchService.getBankBranchByKeyword(pageNo,pageSize,sortBy,sortDirection,keyword),HttpStatus.OK);

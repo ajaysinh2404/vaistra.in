@@ -2,23 +2,25 @@ package com.vaistra.master.utils.bank_manage;
 
 import com.vaistra.master.dto.bank_manage.BankBranchDto;
 import com.vaistra.master.dto.bank_manage.BankDto;
-import com.vaistra.master.dto.mines_master.VehicleDto;
+import com.vaistra.master.dto.cscv_master.VillageDto;
 import com.vaistra.master.entity.bank_manage.Bank;
 import com.vaistra.master.entity.bank_manage.BankBranch;
-import com.vaistra.master.entity.mines_master.Vehicle;
+import com.vaistra.master.entity.cscv_master.Village;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.PropertyMap;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class AppUtils_Bank {
     private final ModelMapper modelMapper;
 
     @Autowired
-    public AppUtils_Bank(ModelMapper modelMapper){
+    public AppUtils_Bank(ModelMapper modelMapper) {
         this.modelMapper = modelMapper;
     }
 
@@ -62,27 +64,34 @@ public class AppUtils_Bank {
     //____________________________________________________________________Bank Branch Utility Methods Start_____________________________________________________
 
     public BankBranchDto bankBranchToDto(BankBranch bankBranch) {
+        BankBranchDto bankBranchDto = new BankBranchDto();
 
-        return this.modelMapper.map(bankBranch,BankBranchDto.class);
-    }
+        bankBranchDto.setBranchId(bankBranch.getBranchId());
+        bankBranchDto.setBankId(bankBranch.getBank().getBankId());
+        bankBranchDto.setBankName(bankBranch.getBank().getBankLongName());
+        bankBranchDto.setStateId(bankBranch.getState().getStateId());
+        bankBranchDto.setStateName(bankBranch.getState().getStateName());
+        bankBranchDto.setDistrictId(bankBranch.getDistrict().getDistrictId());
+        bankBranchDto.setDistrictName(bankBranch.getDistrict().getDistrictName());
+        bankBranchDto.setBranchName(bankBranch.getBranchName());
+        bankBranchDto.setBranchCode(bankBranch.getBranchCode());
+        bankBranchDto.setBranchAddress(bankBranch.getBranchAddress());
+        bankBranchDto.setBranchIfsc(bankBranch.getBranchIfsc());
+        bankBranchDto.setBranchPhoneNumber(bankBranch.getBranchPhoneNumber());
+        bankBranchDto.setBranchMicr(bankBranch.getBranchMicr());
+        bankBranchDto.setFromTiming(bankBranch.getFromTiming());
+        bankBranchDto.setToTiming(bankBranch.getToTiming());
+        bankBranchDto.setIsActive(bankBranch.getIsActive());
 
-    public BankBranch dtoToBankBranch(BankBranchDto bankBranchDto) {
-
-        return this.modelMapper.map(bankBranchDto,BankBranch.class);
+        return bankBranchDto;
     }
 
     public List<BankBranchDto> bankBranchesToDtos(List<BankBranch> bankBranches) {
-        java.lang.reflect.Type targetListType = new TypeToken<List<BankBranchDto>>() {}.getType();
-        return modelMapper.map(bankBranches, targetListType);
+        return bankBranches.stream()
+                .map(this::bankBranchToDto)
+                .collect(Collectors.toList());
     }
 
-    public List<BankBranch> dtosToBankBranches(List<BankBranchDto> dtos) {
-        java.lang.reflect.Type targetListType = new TypeToken<List<BankBranch>>() {}.getType();
-        return modelMapper.map(dtos, targetListType);
-
-    }
-
-    //____________________________________________________________________Bank Branch Utility Methods End_______________________________________________________
 
 
 }
