@@ -48,14 +48,14 @@ public class SubDistrictServiceImpl implements SubDistrictService {
 
     @Override
     public String addSubDistrict(SubDistrictDto subDistrictDto) {
-        if(subDistrictRepository.existsBySubDistrictNameIgnoreCase(subDistrictDto.getSubDistrictName())){
+        if(subDistrictRepository.existsBySubDistrictNameIgnoreCase(subDistrictDto.getSubDistrictName().trim())){
             throw new DuplicateEntryException("Sub-District with name: " + subDistrictDto.getSubDistrictName() + " already exist in current record.");
         }
 
         SubDistrict subDistrict = new SubDistrict();
         District district = districtRepository.findById(subDistrictDto.getDistrictId()).orElseThrow(()->new ResourceNotFoundException("District not found with given id: " + subDistrictDto.getDistrictId()));
 
-        subDistrict.setSubDistrictName(subDistrictDto.getSubDistrictName());
+        subDistrict.setSubDistrictName(subDistrictDto.getSubDistrictName().trim());
         subDistrict.setIsActive(subDistrictDto.getIsActive());
         subDistrict.setDistrict(district);
         subDistrict.setState(district.getState());
@@ -69,7 +69,7 @@ public class SubDistrictServiceImpl implements SubDistrictService {
     public String updateSubDistrict(Integer subDistrictId, SubDistrictDto subDistrictDto) {
         SubDistrict subDistrict = subDistrictRepository.findById(subDistrictId).orElseThrow(()->new ResourceNotFoundException("Sub-District not found with given id: " + subDistrictId));
 
-        SubDistrict subDistrictWithSameName = subDistrictRepository.findBySubDistrictNameIgnoreCase(subDistrictDto.getSubDistrictName());
+        SubDistrict subDistrictWithSameName = subDistrictRepository.findBySubDistrictNameIgnoreCase(subDistrictDto.getSubDistrictName().trim());
 
         if(subDistrictWithSameName != null && !subDistrictWithSameName.getSubDistrictId().equals(subDistrict.getSubDistrictId())){
             throw new DuplicateEntryException("Sub-district : " + subDistrictDto.getSubDistrictName() + " is already exist in current record...!");
@@ -80,7 +80,7 @@ public class SubDistrictServiceImpl implements SubDistrictService {
         State state = stateRepository.findById(subDistrictDto.getStateId()).orElseThrow(()->new ResourceNotFoundException("State not found with given id: " + subDistrictDto.getStateId()));
         Country country = countryRepository.findById(subDistrictDto.getCountryId()).orElseThrow(()->new ResourceNotFoundException("Country not found with given id: " + subDistrictDto.getCountryId()));
 
-        subDistrict.setSubDistrictName(subDistrictDto.getSubDistrictName());
+        subDistrict.setSubDistrictName(subDistrictDto.getSubDistrictName().trim());
         subDistrict.setIsActive(subDistrictDto.getIsActive());
         subDistrict.setDistrict(district);
         subDistrict.setState(state);

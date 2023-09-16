@@ -6,6 +6,7 @@ import com.vaistra.master.entity.cscv_master.Country;
 import com.vaistra.master.entity.cscv_master.District;
 import com.vaistra.master.entity.cscv_master.State;
 import com.vaistra.master.exception.DuplicateEntryException;
+import com.vaistra.master.exception.IllegalArgumentException;
 import com.vaistra.master.exception.IsActiveExceptionHandler;
 import com.vaistra.master.exception.ResourceNotFoundException;
 import com.vaistra.master.repository.cscv_master.CountryRepository;
@@ -13,14 +14,23 @@ import com.vaistra.master.repository.cscv_master.DistrictRepository;
 import com.vaistra.master.repository.cscv_master.StateRepository;
 import com.vaistra.master.service.cscv_master.DistrictService;
 import com.vaistra.master.utils.cscv_master.AppUtils;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 @Service
 public class DistrictServiceImpl implements DistrictService {
@@ -42,14 +52,14 @@ public class DistrictServiceImpl implements DistrictService {
     }
     @Override
     public String addDistrict(DistrictDto districtDto) {
-        if(districtRepository.existsByDistrictNameIgnoreCase(districtDto.getDistrictName())){
+        if(districtRepository.existsByDistrictNameIgnoreCase(districtDto.getDistrictName().trim())){
             throw new DuplicateEntryException("District with name: " + districtDto.getDistrictName() + " already exist in current record.");
         }
 
         District district = new District();
         State state = stateRepository.findById(districtDto.getStateId()).orElseThrow(()->new ResourceNotFoundException("State not found with given id: " + districtDto.getStateId()));
 
-        district.setDistrictName(districtDto.getDistrictName());
+        district.setDistrictName(districtDto.getDistrictName().trim());
         district.setIsActive(districtDto.getIsActive());
         district.setState(state);
         district.setCountry(state.getCountry());
@@ -63,7 +73,7 @@ public class DistrictServiceImpl implements DistrictService {
     public String updateDistrict(Integer districtId, DistrictDto districtDto) {
         District district = districtRepository.findById(districtId).orElseThrow(()->new ResourceNotFoundException("District not found with given id: " + districtId));
 
-        District districtWithSameName = districtRepository.findByDistrictNameIgnoreCase(districtDto.getDistrictName());
+        District districtWithSameName = districtRepository.findByDistrictNameIgnoreCase(districtDto.getDistrictName().trim());
 
         if(districtWithSameName != null && !districtWithSameName.getDistrictId().equals(district.getDistrictId())){
             throw new DuplicateEntryException("District : " + districtDto.getDistrictName() + " is already exist in current record...!");
@@ -74,7 +84,7 @@ public class DistrictServiceImpl implements DistrictService {
         Country country = countryRepository.findById(districtDto.getCountryId()).orElseThrow(()->new ResourceNotFoundException("Country not found with given id: " + districtDto.getCountryId()));
 
 
-        district.setDistrictName(districtDto.getDistrictName());
+        district.setDistrictName(districtDto.getDistrictName().trim());
         district.setIsActive(districtDto.getIsActive());
         district.setState(state);
         district.setCountry(country);
@@ -161,5 +171,83 @@ public class DistrictServiceImpl implements DistrictService {
                 .isLastPage(districtPage.isLast())
                 .data(districts)
                 .build();
+    }
+
+    @Override
+    public String uploadDistrictCSV(MultipartFile file) {
+        if(file.isEmpty()){
+            throw new ResourceNotFoundException("District CSV File not found...!");
+        }
+        if(!Objects.equals(file.getContentType(), "text/csv")){
+            throw new IllegalArgumentException("Invalid file type. Please upload a CSV file.");
+        }
+
+        try {
+            List<District> districts = CSVParser.parse(file.getInputStream(), Charset.defaultCharset(), CSVFormat.DEFAULT)
+                    .stream().skip(1) // Skip the first row
+                    .map(record -> {
+                        District district = new District();
+                        district.setDistrictName(record.get(2).trim()); // Assuming the first column is "stateName"
+                        district.setIsActive(Boolean.parseBoolean(record.get(3))); // Assuming the second column is "isActive"
+
+                        // Get the State name from the CSV file
+                        String stateName = record.get(1).trim();
+
+                        // Try to find the State by name
+                        State state = stateRepository.findByStateNameIgnoreCase(stateName);
+
+                        // If the state does not exist, create a new one
+                        if(state == null){
+                            state = new State();
+                            state.setStateName(stateName.trim());
+                            state.setIsActive(true);
+
+                            // Get the State name from the CSV file
+                            String countryName = record.get(0).trim();
+
+                            // Try to find the State by name
+                            Country country = countryRepository.findByCountryNameIgnoreCase(countryName);
+
+                            // If the country does not exist, create a new one
+                            if (country == null) {
+                                country = new Country();
+                                country.setCountryName(countryName.trim());
+                                country.setIsActive(true); // You can set the "isActive" flag as needed
+                                countryRepository.save(country);
+                            }
+
+                            state.setCountry(country);
+                            stateRepository.save(state);
+
+                        }
+
+
+                        district.setState(state);
+                        district.setCountry(state.getCountry());
+                        return district;
+                    })
+                    .toList();
+
+            // Filter out duplicates by district name
+            List<District> nonDuplicateDistrict = districts.stream()
+                    .filter(distinctByKey(District::getDistrictName))
+                    .toList();
+
+            // Save the non-duplicate entities to the database
+            long uploadedRecordCount = nonDuplicateDistrict.size();
+            districtRepository.saveAll(nonDuplicateDistrict);
+
+            return "CSV file uploaded successfully. " + uploadedRecordCount + " records uploaded.";
+
+
+        }catch (Exception e){
+            return e.getMessage();
+        }
+
+    }
+
+    private static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
+        Set<Object> seen = ConcurrentHashMap.newKeySet();
+        return t -> seen.add(keyExtractor.apply(t));
     }
 }

@@ -34,13 +34,13 @@ public class VehicleServiceImpl implements VehicleService {
 
     @Override
     public String addVehicle(VehicleDto vehicleDto) {
-        if(vehicleRepository.existsByVehicleNameIgnoreCase(vehicleDto.getVehicleName())){
+        if(vehicleRepository.existsByVehicleNameIgnoreCase(vehicleDto.getVehicleName().trim())){
             throw new DuplicateEntryException("Vehicle with name: " + vehicleDto.getVehicleName() + " already exist in current record.");
         }
 
         Vehicle vehicle = new Vehicle();
 
-        vehicle.setVehicleName(vehicleDto.getVehicleName());
+        vehicle.setVehicleName(vehicleDto.getVehicleName().trim());
 
         vehicleRepository.save(vehicle);
 
@@ -51,13 +51,13 @@ public class VehicleServiceImpl implements VehicleService {
     public String updateVehicle(Integer vehicleId, VehicleDto vehicleDto) {
         Vehicle vehicle = vehicleRepository.findById(vehicleId).orElseThrow(()->new ResourceNotFoundException("Vehicle not found with given id: " + vehicleId));
 
-        Vehicle vehicleWithSameName = vehicleRepository.findByVehicleNameIgnoreCase(vehicleDto.getVehicleName());
+        Vehicle vehicleWithSameName = vehicleRepository.findByVehicleNameIgnoreCase(vehicleDto.getVehicleName().trim());
 
         if(vehicleWithSameName != null && !vehicleWithSameName.getVehicleId().equals(vehicle.getVehicleId())){
             throw new DuplicateEntryException("Vehicle : " + vehicleDto.getVehicleName() + " is already exist in current record...!");
         }
 
-        vehicle.setVehicleName(vehicleDto.getVehicleName());
+        vehicle.setVehicleName(vehicleDto.getVehicleName().trim());
 
         vehicleRepository.save(vehicle);
 

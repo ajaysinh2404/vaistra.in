@@ -29,14 +29,14 @@ public class EntityTypeServiceImpl implements EntityTypeService {
     }
     @Override
     public String addEntityType(EntityTypeDto entityTypeDto) {
-        if(entityTypeRepository.existsByEntityTypeNameIgnoreCase(entityTypeDto.getEntityTypeName())){
+        if(entityTypeRepository.existsByEntityTypeNameIgnoreCase(entityTypeDto.getEntityTypeName().trim())){
             throw new DuplicateEntryException("Entity with name: " + entityTypeDto.getEntityTypeName() + " already exist in current record.");
         }
 
         EntityType entityType = new EntityType();
 
-        entityType.setEntityTypeName(entityTypeDto.getEntityTypeName());
-        entityType.setShortName(entityTypeDto.getShortName());
+        entityType.setEntityTypeName(entityTypeDto.getEntityTypeName().trim());
+        entityType.setShortName(entityTypeDto.getShortName().trim());
 
         entityTypeRepository.save(entityType);
 
@@ -47,14 +47,14 @@ public class EntityTypeServiceImpl implements EntityTypeService {
     public String updateEntityType(Integer entityTypeId, EntityTypeDto entityTypeDto) {
         EntityType entityType = entityTypeRepository.findById(entityTypeId).orElseThrow(()->new ResourceNotFoundException("Entity not found with given id: " + entityTypeId));
 
-        EntityType entityWithSameName = entityTypeRepository.findByEntityTypeNameIgnoreCase(entityTypeDto.getEntityTypeName());
+        EntityType entityWithSameName = entityTypeRepository.findByEntityTypeNameIgnoreCase(entityTypeDto.getEntityTypeName().trim());
 
         if(entityWithSameName != null && !entityWithSameName.getEntityTypeId().equals(entityType.getEntityTypeId())){
             throw new DuplicateEntryException("Entity : " + entityTypeDto.getEntityTypeName() + " is already exist in current record...!");
         }
 
-        entityType.setEntityTypeName(entityTypeDto.getEntityTypeName());
-        entityType.setShortName(entityTypeDto.getShortName());
+        entityType.setEntityTypeName(entityTypeDto.getEntityTypeName().trim());
+        entityType.setShortName(entityTypeDto.getShortName().trim());
 
         entityTypeRepository.save(entityType);
 

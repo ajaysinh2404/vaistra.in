@@ -32,13 +32,13 @@ public class EquipmentServiceImpl implements EquipmentService {
     }
     @Override
     public String addEquipment(EquipmentDto equipmentDto) {
-        if(equipmentRepository.existsByEquipmentNameIgnoreCase(equipmentDto.getEquipmentName())){
+        if(equipmentRepository.existsByEquipmentNameIgnoreCase(equipmentDto.getEquipmentName().trim())){
             throw new DuplicateEntryException("Equipment with name: " + equipmentDto.getEquipmentName() + " already exist in current record.");
         }
 
         Equipment equipment = new Equipment();
 
-        equipment.setEquipmentName(equipmentDto.getEquipmentName());
+        equipment.setEquipmentName(equipmentDto.getEquipmentName().trim());
 
         equipmentRepository.save(equipment);
 
@@ -49,13 +49,13 @@ public class EquipmentServiceImpl implements EquipmentService {
     public String updateEquipment(Integer equipmentId, EquipmentDto equipmentDto) {
         Equipment equipment = equipmentRepository.findById(equipmentId).orElseThrow(()->new ResourceNotFoundException("Equipment not found with given id: " + equipmentId));
 
-        Equipment equipmentWithSameName = equipmentRepository.findByEquipmentNameIgnoreCase(equipmentDto.getEquipmentName());
+        Equipment equipmentWithSameName = equipmentRepository.findByEquipmentNameIgnoreCase(equipmentDto.getEquipmentName().trim());
 
         if(equipmentWithSameName != null && !equipmentWithSameName.getEquipmentId().equals(equipment.getEquipmentId())){
             throw new DuplicateEntryException("Equipment : " + equipmentDto.getEquipmentName() + " is already exist in current record...!");
         }
 
-        equipment.setEquipmentName(equipmentDto.getEquipmentName());
+        equipment.setEquipmentName(equipmentDto.getEquipmentName().trim());
 
         equipmentRepository.save(equipment);
 

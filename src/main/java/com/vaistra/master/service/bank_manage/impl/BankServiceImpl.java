@@ -3,7 +3,6 @@ package com.vaistra.master.service.bank_manage.impl;
 import com.vaistra.master.dto.HttpResponse;
 import com.vaistra.master.dto.bank_manage.BankDto;
 import com.vaistra.master.entity.bank_manage.Bank;
-import com.vaistra.master.entity.bank_manage.BankBranch;
 import com.vaistra.master.exception.DuplicateEntryException;
 import com.vaistra.master.exception.FileSizeExceedException;
 import com.vaistra.master.exception.NoDataFoundException;
@@ -41,11 +40,11 @@ public class BankServiceImpl implements BankService {
     @Override
     public String addBank(BankDto bankDto, MultipartFile file) throws IOException {
         String extension = file.getOriginalFilename();
-        if(bankRepository.existsByBankShortNameIgnoreCase(bankDto.getBankShortName())){
+        if(bankRepository.existsByBankShortNameIgnoreCase(bankDto.getBankShortName().trim())){
             throw new DuplicateEntryException("Short name: " + bankDto.getBankShortName() + " already exist in current record.");
         }
 
-        if(bankRepository.existsByBankLongNameIgnoreCase(bankDto.getBankLongName())){
+        if(bankRepository.existsByBankLongNameIgnoreCase(bankDto.getBankLongName().trim())){
             throw new DuplicateEntryException("Long name: " + bankDto.getBankLongName() + " already exist in current record.");
         }
         if(file.isEmpty()){
@@ -65,8 +64,8 @@ public class BankServiceImpl implements BankService {
         Bank bank = new Bank();
 
         bank.setBankLogo(file.getBytes());
-        bank.setBankLongName(bankDto.getBankLongName());
-        bank.setBankShortName(bankDto.getBankShortName());
+        bank.setBankLongName(bankDto.getBankLongName().trim());
+        bank.setBankShortName(bankDto.getBankShortName().trim());
         bank.setIsActive(bankDto.getIsActive());
 
         bankRepository.save(bank);
@@ -81,13 +80,13 @@ public class BankServiceImpl implements BankService {
 
         Bank bank = bankRepository.findById(bankId).orElseThrow(()->new ResourceNotFoundException("Bank not found with given id: " + bankId));
 
-        Bank bankWithSameName = bankRepository.findByBankLongNameIgnoreCase(bankDto.getBankLongName());
+        Bank bankWithSameName = bankRepository.findByBankLongNameIgnoreCase(bankDto.getBankLongName().trim());
 
         if(bankWithSameName != null && !bankWithSameName.getBankId().equals(bank.getBankId())){
             throw new DuplicateEntryException("Bank : " + bankDto.getBankLongName() + " is already exist in current record...!");
         }
 
-        Bank bankShortNameWithSameName = bankRepository.findByBankShortNameIgnoreCase(bankDto.getBankShortName());
+        Bank bankShortNameWithSameName = bankRepository.findByBankShortNameIgnoreCase(bankDto.getBankShortName().trim());
 
         if(bankShortNameWithSameName != null && !bankShortNameWithSameName.getBankId().equals(bank.getBankId())){
             throw new DuplicateEntryException("Bank short name : " + bankDto.getBankShortName() + " is already exist in current record...!");
@@ -108,8 +107,8 @@ public class BankServiceImpl implements BankService {
         }
 
         bank.setBankLogo(file.getBytes());
-        bank.setBankLongName(bankDto.getBankLongName());
-        bank.setBankShortName(bankDto.getBankShortName());
+        bank.setBankLongName(bankDto.getBankLongName().trim());
+        bank.setBankShortName(bankDto.getBankShortName().trim());
         bank.setIsActive(bankDto.getIsActive());
 
         bankRepository.save(bank);

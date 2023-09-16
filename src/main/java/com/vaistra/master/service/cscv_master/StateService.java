@@ -2,6 +2,7 @@ package com.vaistra.master.service.cscv_master;
 
 import com.vaistra.master.dto.HttpResponse;
 import com.vaistra.master.dto.cscv_master.StateDto;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -17,6 +18,8 @@ public interface StateService {
     public List<StateDto> getStateByCountry(Integer countryId);
 
     public HttpResponse getStateByKeyword(int pageNo, int pageSize, String sortBy, String sortDirection, String keyword);
+
+    public String uploadStateCSV(MultipartFile file);
 
 
 }

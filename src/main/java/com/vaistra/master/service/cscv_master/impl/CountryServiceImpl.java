@@ -11,7 +11,6 @@ import com.vaistra.master.repository.cscv_master.CountryRepository;
 import com.vaistra.master.service.cscv_master.CountryService;
 import com.vaistra.master.utils.cscv_master.AppUtils;
 import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,17 +20,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 @Service
 public class CountryServiceImpl implements CountryService {
@@ -49,13 +44,13 @@ public class CountryServiceImpl implements CountryService {
     @Override
     public String addCountry(CountryDto countryDto) {
 
-        if(countryRepository.existsByCountryNameIgnoreCase(countryDto.getCountryName())){
+        if(countryRepository.existsByCountryNameIgnoreCase(countryDto.getCountryName().trim())){
             throw new DuplicateEntryException("Country with name: " + countryDto.getCountryName() + " already exist in current record.");
         }
 
         Country country = new Country();
 
-        country.setCountryName(countryDto.getCountryName());
+        country.setCountryName(countryDto.getCountryName().trim());
         country.setIsActive(countryDto.getIsActive());
         countryRepository.save(country);
 
@@ -66,13 +61,13 @@ public class CountryServiceImpl implements CountryService {
     public String updateCountry(Integer countryId, CountryDto countryDto) {
         Country country = countryRepository.findById(countryId).orElseThrow(()-> new ResourceNotFoundException("Country not found with given id: " + countryId));
 
-        Country countryWithSamename = countryRepository.findByCountryNameIgnoreCase(countryDto.getCountryName());
+        Country countryWithSamename = countryRepository.findByCountryNameIgnoreCase(countryDto.getCountryName().trim());
 
         if(countryWithSamename != null && !countryWithSamename.getCountryId().equals(country.getCountryId())){
             throw new DuplicateEntryException("Country : " + countryDto.getCountryName() + " is already exist in current record...!");
         }
 
-        country.setCountryName(countryDto.getCountryName());
+        country.setCountryName(countryDto.getCountryName().trim());
         country.setIsActive(countryDto.getIsActive());
 
         countryRepository.save(country);
@@ -190,7 +185,7 @@ public class CountryServiceImpl implements CountryService {
                     .stream().skip(1) // Skip the first row
                     .map(record -> {
                         Country country = new Country();
-                        country.setCountryName(record.get(0)); // Assuming the first column is "country"
+                        country.setCountryName(record.get(0).trim()); // Assuming the first column is "country"
                         country.setIsActive(Boolean.parseBoolean(record.get(1))); // Assuming the second column is "isActive"
                         return country;
                     })

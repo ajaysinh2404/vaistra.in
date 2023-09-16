@@ -46,7 +46,7 @@ public class UserSerivceImpl implements UserService {
 
         user.setEmail(userDto.getEmail().trim());
         user.setPassword(passwordEncoder.encode(userDto.getPassword().trim()));
-        user.setName(userDto.getName());
+        user.setName(userDto.getName().trim());
 
         userRepository.save(user);
 
@@ -57,7 +57,7 @@ public class UserSerivceImpl implements UserService {
     public String updateUser(Integer id, UserDto userDto) {
         User user = userRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("Email Id not found with given id: " + id));
 
-        User userWithSameemail = userRepository.findByEmailIgnoreCase(user.getEmail());
+        User userWithSameemail = userRepository.findByEmailIgnoreCase(user.getEmail().trim());
 
         if(userWithSameemail != null && !userWithSameemail.getUserId().equals(user.getUserId())){
             throw new DuplicateEntryException("Email: " + userDto.getEmail() + " is already exist in current record...!");
@@ -68,7 +68,7 @@ public class UserSerivceImpl implements UserService {
         }
         user.setEmail(userDto.getEmail().trim());
         user.setPassword(passwordEncoder.encode(userDto.getPassword().trim()));
-        user.setName(userDto.getName());
+        user.setName(userDto.getName().trim());
 
         userRepository.save(user);
 

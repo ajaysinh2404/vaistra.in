@@ -32,13 +32,13 @@ public class DesignationServiceImpl implements DesignationService {
 
     @Override
     public String addDesignation(DesignationDto designationDto) {
-        if(designationRepository.existsByDesignationNameIgnoreCase(designationDto.getDesignationName())){
+        if(designationRepository.existsByDesignationNameIgnoreCase(designationDto.getDesignationName().trim())){
             throw new DuplicateEntryException("Designation with name: " + designationDto.getDesignationName() + " already exist in current record.");
         }
 
         Designation designation = new Designation();
 
-        designation.setDesignationName(designationDto.getDesignationName());
+        designation.setDesignationName(designationDto.getDesignationName().trim());
 
         designationRepository.save(designation);
 
@@ -49,13 +49,13 @@ public class DesignationServiceImpl implements DesignationService {
     public String updateDesignation(Integer designationId, DesignationDto designationDto) {
         Designation designation = designationRepository.findById(designationId).orElseThrow(()->new ResourceNotFoundException("Designation not found with given id: " + designationId));
 
-        Designation designationWithSameName = designationRepository.findByDesignationNameIgnoreCase(designationDto.getDesignationName());
+        Designation designationWithSameName = designationRepository.findByDesignationNameIgnoreCase(designationDto.getDesignationName().trim());
 
         if(designationWithSameName != null && !designationWithSameName.getDesignationId().equals(designation.getDesignationId())){
             throw new DuplicateEntryException("Designation : " + designationDto.getDesignationName() + " is already exist in current record...!");
         }
 
-        designation.setDesignationName(designationDto.getDesignationName());
+        designation.setDesignationName(designationDto.getDesignationName().trim());
 
         designationRepository.save(designation);
 

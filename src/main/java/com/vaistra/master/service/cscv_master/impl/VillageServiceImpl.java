@@ -45,14 +45,14 @@ public class VillageServiceImpl implements VillageService {
 
     @Override
     public String addVillage(VillageDto villageDto) {
-        if(villageRepository.existsByVillageNameIgnoreCase(villageDto.getVillageName())){
+        if(villageRepository.existsByVillageNameIgnoreCase(villageDto.getVillageName().trim())){
             throw new DuplicateEntryException("Village with name: " + villageDto.getVillageName() + " already exist in current record.");
         }
 
         Village village = new Village();
         SubDistrict subDistrict = subDistrictRepository.findById(villageDto.getSubDistrictId()).orElseThrow(()->new ResourceNotFoundException("Sub-district not found with given id: " + villageDto.getSubDistrictId()));
 
-        village.setVillageName(villageDto.getVillageName());
+        village.setVillageName(villageDto.getVillageName().trim());
         village.setIsActive(villageDto.getIsActive());
         village.setSubDistrict(subDistrict);
         village.setDistrict(subDistrict.getDistrict());
@@ -68,7 +68,7 @@ public class VillageServiceImpl implements VillageService {
     public String updateVillage(Integer villageId, VillageDto villageDto) {
         Village village = villageRepository.findById(villageId).orElseThrow(()->new ResourceNotFoundException("Village not found with given id: " + villageId));
 
-        Village villageWithSameName = villageRepository.findByVillageNameIgnoreCase(villageDto.getVillageName());
+        Village villageWithSameName = villageRepository.findByVillageNameIgnoreCase(villageDto.getVillageName().trim());
 
         if(villageWithSameName != null && !villageWithSameName.getVillageId().equals(village.getVillageId())){
             throw new DuplicateEntryException("Village : " + villageDto.getVillageName() + " is already exist in current record...!");
@@ -80,7 +80,7 @@ public class VillageServiceImpl implements VillageService {
         State state = stateRepository.findById(villageDto.getStateId()).orElseThrow(()->new ResourceNotFoundException("State not found with given id: " + villageDto.getStateId()));
         Country country = countryRepository.findById(villageDto.getCountryId()).orElseThrow(()->new ResourceNotFoundException("Country not found with given id: " + villageDto.getCountryId()));
 
-        village.setVillageName(villageDto.getVillageName());
+        village.setVillageName(villageDto.getVillageName().trim());
         village.setIsActive(villageDto.getIsActive());
         village.setSubDistrict(subDistrict);
         village.setDistrict(district);
