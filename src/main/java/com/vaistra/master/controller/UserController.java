@@ -1,13 +1,17 @@
 package com.vaistra.master.controller;
 
 import com.vaistra.master.dto.UserDto;
+import com.vaistra.master.dto.UserDto_Update;
 import com.vaistra.master.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -41,8 +45,8 @@ public class UserController {
     }
 
 
-    @PutMapping("/{id}")
-    public ResponseEntity<String> updateUser(@PathVariable Integer id, @RequestBody @Valid UserDto userDto){
-        return new ResponseEntity<>(userService.updateUser(id,userDto),HttpStatus.OK);
+    @PatchMapping("/{id}")
+    public ResponseEntity<String> updateUser(@PathVariable Integer id, @RequestBody @Valid UserDto_Update userDtoUpdate, @AuthenticationPrincipal UserDetails userDetails){
+        return new ResponseEntity<>(userService.updateUser(id,userDtoUpdate,userDetails),HttpStatus.OK);
     }
 }
