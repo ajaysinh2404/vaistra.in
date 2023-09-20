@@ -2,6 +2,7 @@ package com.vaistra.master.service.cscv_master.impl;
 
 import com.vaistra.master.dto.HttpResponse;
 import com.vaistra.master.dto.cscv_master.SubDistrictDto;
+import com.vaistra.master.dto.cscv_master.SubDistrictDto_Update;
 import com.vaistra.master.entity.cscv_master.Country;
 import com.vaistra.master.entity.cscv_master.District;
 import com.vaistra.master.entity.cscv_master.State;
@@ -66,25 +67,37 @@ public class SubDistrictServiceImpl implements SubDistrictService {
     }
 
     @Override
-    public String updateSubDistrict(Integer subDistrictId, SubDistrictDto subDistrictDto) {
+    public String updateSubDistrict(Integer subDistrictId, SubDistrictDto_Update subDistrictDto) {
         SubDistrict subDistrict = subDistrictRepository.findById(subDistrictId).orElseThrow(()->new ResourceNotFoundException("Sub-District not found with given id: " + subDistrictId));
 
-        SubDistrict subDistrictWithSameName = subDistrictRepository.findBySubDistrictNameIgnoreCase(subDistrictDto.getSubDistrictName().trim());
 
-        if(subDistrictWithSameName != null && !subDistrictWithSameName.getSubDistrictId().equals(subDistrict.getSubDistrictId())){
-            throw new DuplicateEntryException("Sub-district : " + subDistrictDto.getSubDistrictName() + " is already exist in current record...!");
+        if(subDistrictDto.getSubDistrictName()!=null){
+            SubDistrict subDistrictWithSameName = subDistrictRepository.findBySubDistrictNameIgnoreCase(subDistrictDto.getSubDistrictName().trim());
+
+            if(subDistrictWithSameName != null && !subDistrictWithSameName.getSubDistrictId().equals(subDistrict.getSubDistrictId())){
+                throw new DuplicateEntryException("Sub-district : " + subDistrictDto.getSubDistrictName() + " is already exist in current record...!");
+            }
+            subDistrict.setSubDistrictName(subDistrictDto.getSubDistrictName().trim());
+        }
+
+        if(subDistrictDto.getDistrictId()!=null){
+            District district = districtRepository.findById(subDistrictDto.getDistrictId()).orElseThrow(()->new ResourceNotFoundException("District not found with given id: " + subDistrictDto.getDistrictId()));
+            subDistrict.setDistrict(district);
+        }
+
+        if(subDistrictDto.getStateId()!=null){
+            State state = stateRepository.findById(subDistrictDto.getStateId()).orElseThrow(()->new ResourceNotFoundException("State not found with given id: " + subDistrictDto.getStateId()));
+            subDistrict.setState(state);
+        }
+
+        if(subDistrictDto.getCountryId()!=null){
+            Country country = countryRepository.findById(subDistrictDto.getCountryId()).orElseThrow(()->new ResourceNotFoundException("Country not found with given id: " + subDistrictDto.getCountryId()));
+            subDistrict.setCountry(country);
         }
 
 
-        District district = districtRepository.findById(subDistrictDto.getDistrictId()).orElseThrow(()->new ResourceNotFoundException("District not found with given id: " + subDistrictDto.getDistrictId()));
-        State state = stateRepository.findById(subDistrictDto.getStateId()).orElseThrow(()->new ResourceNotFoundException("State not found with given id: " + subDistrictDto.getStateId()));
-        Country country = countryRepository.findById(subDistrictDto.getCountryId()).orElseThrow(()->new ResourceNotFoundException("Country not found with given id: " + subDistrictDto.getCountryId()));
-
-        subDistrict.setSubDistrictName(subDistrictDto.getSubDistrictName().trim());
-        subDistrict.setIsActive(subDistrictDto.getIsActive());
-        subDistrict.setDistrict(district);
-        subDistrict.setState(state);
-        subDistrict.setCountry(country);
+        if(subDistrictDto.getIsActive()!=null)
+            subDistrict.setIsActive(subDistrictDto.getIsActive());
 
         subDistrictRepository.save(subDistrict);
 

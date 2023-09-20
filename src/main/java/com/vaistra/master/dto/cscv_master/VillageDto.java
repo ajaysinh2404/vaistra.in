@@ -27,9 +27,11 @@ public class VillageDto {
     @Min(value=0,message = "Sub-district Id should be positive digits only.")
     private Integer subDistrictId;
 
+    @NotNull(message = "District id shouldn't be null.")
     @Min(value=0,message = "District Id should be positive digits only.")
     private Integer districtId;
 
+    @NotNull(message = "State id shouldn't be null.")
     @Min(value=0,message = "State Id should be positive digits only.")
     private Integer stateId;
 

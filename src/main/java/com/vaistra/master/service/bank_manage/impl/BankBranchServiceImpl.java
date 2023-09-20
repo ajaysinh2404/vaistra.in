@@ -3,6 +3,7 @@ package com.vaistra.master.service.bank_manage.impl;
 
 import com.vaistra.master.dto.HttpResponse;
 import com.vaistra.master.dto.bank_manage.BankBranchDto;
+import com.vaistra.master.dto.bank_manage.BankBranchDto_Update;
 import com.vaistra.master.entity.bank_manage.Bank;
 import com.vaistra.master.entity.bank_manage.BankBranch;
 import com.vaistra.master.entity.cscv_master.District;
@@ -88,49 +89,76 @@ public class BankBranchServiceImpl implements BankBranchService {
     }
 
     @Override
-    public String updateBankBranch(Integer branchId, BankBranchDto bankBranchDto) {
+    public String updateBankBranch(Integer branchId, BankBranchDto_Update bankBranchDto) {
         BankBranch bankBranch = bankBranchRepository.findById(branchId).orElseThrow(()->new ResourceNotFoundException("Bank Branch not found with given id: " + branchId));
 
-        BankBranch bankBranchWithSameName = bankBranchRepository.findByBranchNameIgnoreCase(bankBranchDto.getBranchName().trim());
+        if (bankBranchDto.getBranchName()!=null){
+            BankBranch bankBranchWithSameName = bankBranchRepository.findByBranchNameIgnoreCase(bankBranchDto.getBranchName().trim());
 
-        if(bankBranchWithSameName != null && !bankBranchWithSameName.getBranchId().equals(bankBranch.getBranchId())){
-            throw new DuplicateEntryException("Bank Branch: " + bankBranchDto.getBranchName() + " is already exist in current record...!");
+            if(bankBranchWithSameName != null && !bankBranchWithSameName.getBranchId().equals(bankBranch.getBranchId())){
+                throw new DuplicateEntryException("Bank Branch: " + bankBranchDto.getBranchName() + " is already exist in current record...!");
+            }
+            bankBranch.setBranchName(bankBranchDto.getBranchName().trim());
         }
 
-        BankBranch bankBranchCodeWithSame = bankBranchRepository.findByBranchCodeIgnoreCase(bankBranchDto.getBranchCode().trim());
+        if(bankBranchDto.getBranchCode()!=null){
+            BankBranch bankBranchCodeWithSame = bankBranchRepository.findByBranchCodeIgnoreCase(bankBranchDto.getBranchCode().trim());
 
-        if(bankBranchCodeWithSame != null && !bankBranchCodeWithSame.getBranchId().equals(bankBranch.getBranchId())){
-            throw new DuplicateEntryException("Bank Branch Code: " + bankBranchDto.getBranchCode() + " is already exist in current record...!");
+            if(bankBranchCodeWithSame != null && !bankBranchCodeWithSame.getBranchId().equals(bankBranch.getBranchId())){
+                throw new DuplicateEntryException("Bank Branch Code: " + bankBranchDto.getBranchCode() + " is already exist in current record...!");
+            }
+            bankBranch.setBranchCode(bankBranchDto.getBranchCode().trim());
         }
 
-        BankBranch bankBranchIFSCCodeWithSame = bankBranchRepository.findByBranchIfscIgnoreCase(bankBranchDto.getBranchIfsc().trim());
+        if(bankBranchDto.getBranchIfsc()!=null){
+            BankBranch bankBranchIFSCCodeWithSame = bankBranchRepository.findByBranchIfscIgnoreCase(bankBranchDto.getBranchIfsc().trim());
 
-        if(bankBranchIFSCCodeWithSame != null && !bankBranchIFSCCodeWithSame.getBranchId().equals(bankBranch.getBranchId())){
-            throw new DuplicateEntryException("Bank Branch IFSC Code: " + bankBranchDto.getBranchIfsc() + " is already exist in current record...!");
+            if(bankBranchIFSCCodeWithSame != null && !bankBranchIFSCCodeWithSame.getBranchId().equals(bankBranch.getBranchId())){
+                throw new DuplicateEntryException("Bank Branch IFSC Code: " + bankBranchDto.getBranchIfsc() + " is already exist in current record...!");
+            }
+            bankBranch.setBranchIfsc(bankBranchDto.getBranchIfsc().trim());
         }
 
-        BankBranch bankBranchMICRCodeWithSame = bankBranchRepository.findByBranchMicrIgnoreCase(bankBranchDto.getBranchMicr().trim());
+        if (bankBranchDto.getBranchMicr()!=null){
+            BankBranch bankBranchMICRCodeWithSame = bankBranchRepository.findByBranchMicrIgnoreCase(bankBranchDto.getBranchMicr().trim());
 
-        if(bankBranchMICRCodeWithSame != null && !bankBranchMICRCodeWithSame.getBranchId().equals(bankBranch.getBranchId())){
-            throw new DuplicateEntryException("Bank Branch MICR Code: " + bankBranchDto.getBranchMicr() + " is already exist in current record...!");
+            if(bankBranchMICRCodeWithSame != null && !bankBranchMICRCodeWithSame.getBranchId().equals(bankBranch.getBranchId())){
+                throw new DuplicateEntryException("Bank Branch MICR Code: " + bankBranchDto.getBranchMicr() + " is already exist in current record...!");
+            }
+            bankBranch.setBranchMicr(bankBranchDto.getBranchMicr().trim());
+
         }
 
-        Bank bank = bankRepository.findById(bankBranchDto.getBankId()).orElseThrow(()->new ResourceNotFoundException("Bank not found with given id: " + bankBranchDto.getBankId()));
-        State state = stateRepository.findById(bankBranchDto.getStateId()).orElseThrow(()->new ResourceNotFoundException("State not found with given id: " + bankBranchDto.getStateId()));
-        District district = districtRepository.findById(bankBranchDto.getDistrictId()).orElseThrow(()->new ResourceNotFoundException("District not found with given id: " + bankBranchDto.getDistrictId()));
 
-        bankBranch.setBank(bank);
-        bankBranch.setState(state);
-        bankBranch.setDistrict(district);
-        bankBranch.setBranchName(bankBranchDto.getBranchName().trim());
-        bankBranch.setBranchCode(bankBranchDto.getBranchCode().trim());
-        bankBranch.setBranchAddress(bankBranchDto.getBranchAddress().trim());
-        bankBranch.setBranchIfsc(bankBranchDto.getBranchIfsc().trim());
-        bankBranch.setBranchPhoneNumber(bankBranchDto.getBranchPhoneNumber().trim());
-        bankBranch.setBranchMicr(bankBranchDto.getBranchMicr().trim());
-        bankBranch.setFromTiming(bankBranchDto.getFromTiming());
-        bankBranch.setToTiming(bankBranchDto.getToTiming());
-        bankBranch.setIsActive(bankBranchDto.getIsActive());
+        if (bankBranchDto.getBankId()!=null){
+            Bank bank = bankRepository.findById(bankBranchDto.getBankId()).orElseThrow(()->new ResourceNotFoundException("Bank not found with given id: " + bankBranchDto.getBankId()));
+            bankBranch.setBank(bank);
+        }
+
+        if(bankBranchDto.getStateId()!=null){
+            State state = stateRepository.findById(bankBranchDto.getStateId()).orElseThrow(()->new ResourceNotFoundException("State not found with given id: " + bankBranchDto.getStateId()));
+            bankBranch.setState(state);
+        }
+
+        if(bankBranchDto.getDistrictId()!=null){
+            District district = districtRepository.findById(bankBranchDto.getDistrictId()).orElseThrow(()->new ResourceNotFoundException("District not found with given id: " + bankBranchDto.getDistrictId()));
+            bankBranch.setDistrict(district);
+        }
+
+        if (bankBranchDto.getBranchAddress()!=null)
+            bankBranch.setBranchAddress(bankBranchDto.getBranchAddress().trim());
+
+        if (bankBranchDto.getBranchPhoneNumber()!=null)
+            bankBranch.setBranchPhoneNumber(bankBranchDto.getBranchPhoneNumber().trim());
+
+        if (bankBranchDto.getFromTiming()!=null)
+            bankBranch.setFromTiming(bankBranchDto.getFromTiming());
+
+        if (bankBranchDto.getToTiming()!=null)
+            bankBranch.setToTiming(bankBranchDto.getToTiming());
+
+        if (bankBranchDto.getIsActive()!=null)
+            bankBranch.setIsActive(bankBranchDto.getIsActive());
 
         bankBranchRepository.save(bankBranch);
 

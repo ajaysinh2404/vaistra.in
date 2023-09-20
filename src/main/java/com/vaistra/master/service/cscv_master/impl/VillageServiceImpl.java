@@ -2,6 +2,7 @@ package com.vaistra.master.service.cscv_master.impl;
 
 import com.vaistra.master.dto.HttpResponse;
 import com.vaistra.master.dto.cscv_master.VillageDto;
+import com.vaistra.master.dto.cscv_master.VillageDto_Update;
 import com.vaistra.master.entity.cscv_master.*;
 import com.vaistra.master.exception.DuplicateEntryException;
 import com.vaistra.master.exception.IsActiveExceptionHandler;
@@ -65,27 +66,41 @@ public class VillageServiceImpl implements VillageService {
     }
 
     @Override
-    public String updateVillage(Integer villageId, VillageDto villageDto) {
+    public String updateVillage(Integer villageId, VillageDto_Update villageDto) {
         Village village = villageRepository.findById(villageId).orElseThrow(()->new ResourceNotFoundException("Village not found with given id: " + villageId));
 
-        Village villageWithSameName = villageRepository.findByVillageNameIgnoreCase(villageDto.getVillageName().trim());
+        if(villageDto.getVillageName()!=null){
+            Village villageWithSameName = villageRepository.findByVillageNameIgnoreCase(villageDto.getVillageName().trim());
 
-        if(villageWithSameName != null && !villageWithSameName.getVillageId().equals(village.getVillageId())){
-            throw new DuplicateEntryException("Village : " + villageDto.getVillageName() + " is already exist in current record...!");
+            if(villageWithSameName != null && !villageWithSameName.getVillageId().equals(village.getVillageId())){
+                throw new DuplicateEntryException("Village : " + villageDto.getVillageName() + " is already exist in current record...!");
+            }
+            village.setVillageName(villageDto.getVillageName().trim());
+        }
+
+        if (villageDto.getSubDistrictId()!=null){
+            SubDistrict subDistrict = subDistrictRepository.findById(villageDto.getSubDistrictId()).orElseThrow(()->new ResourceNotFoundException("Sub-district not found with given id: " + villageDto.getSubDistrictId()));
+            village.setSubDistrict(subDistrict);
+        }
+
+        if(villageDto.getDistrictId()!=null){
+            District district = districtRepository.findById(villageDto.getDistrictId()).orElseThrow(()->new ResourceNotFoundException("District not found with given id: " + villageDto.getDistrictId()));
+            village.setDistrict(district);
+        }
+
+        if(villageDto.getStateId()!=null){
+            State state = stateRepository.findById(villageDto.getStateId()).orElseThrow(()->new ResourceNotFoundException("State not found with given id: " + villageDto.getStateId()));
+            village.setState(state);
+        }
+
+        if(villageDto.getCountryId()!=null){
+            Country country = countryRepository.findById(villageDto.getCountryId()).orElseThrow(()->new ResourceNotFoundException("Country not found with given id: " + villageDto.getCountryId()));
+            village.setCountry(country);
         }
 
 
-        SubDistrict subDistrict = subDistrictRepository.findById(villageDto.getSubDistrictId()).orElseThrow(()->new ResourceNotFoundException("Sub-district not found with given id: " + villageDto.getSubDistrictId()));
-        District district = districtRepository.findById(villageDto.getDistrictId()).orElseThrow(()->new ResourceNotFoundException("District not found with given id: " + villageDto.getDistrictId()));
-        State state = stateRepository.findById(villageDto.getStateId()).orElseThrow(()->new ResourceNotFoundException("State not found with given id: " + villageDto.getStateId()));
-        Country country = countryRepository.findById(villageDto.getCountryId()).orElseThrow(()->new ResourceNotFoundException("Country not found with given id: " + villageDto.getCountryId()));
-
-        village.setVillageName(villageDto.getVillageName().trim());
-        village.setIsActive(villageDto.getIsActive());
-        village.setSubDistrict(subDistrict);
-        village.setDistrict(district);
-        village.setState(state);
-        village.setCountry(country);
+        if(villageDto.getIsActive()!=null)
+            village.setIsActive(villageDto.getIsActive());
 
         villageRepository.save(village);
 

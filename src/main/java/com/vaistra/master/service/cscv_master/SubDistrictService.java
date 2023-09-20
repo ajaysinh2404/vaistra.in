@@ -2,13 +2,14 @@ package com.vaistra.master.service.cscv_master;
 
 import com.vaistra.master.dto.HttpResponse;
 import com.vaistra.master.dto.cscv_master.SubDistrictDto;
+import com.vaistra.master.dto.cscv_master.SubDistrictDto_Update;
 
 import java.util.List;
 
 public interface SubDistrictService {
     public String addSubDistrict(SubDistrictDto subDistrictDto);
 
-    public String updateSubDistrict(Integer subDistrictId, SubDistrictDto subDistrictDto);
+    public String updateSubDistrict(Integer subDistrictId, SubDistrictDto_Update subDistrictDto);
 
     public String deleteSubDistrict(Integer subDistrictId);
 

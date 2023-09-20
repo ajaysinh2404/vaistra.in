@@ -3,6 +3,7 @@ package com.vaistra.master.controller.mines_master;
 
 import com.vaistra.master.dto.HttpResponse;
 import com.vaistra.master.dto.mines_master.MineralDto;
+import com.vaistra.master.dto.mines_master.MineralDto_Update;
 import com.vaistra.master.dto.mines_master.VehicleDto;
 import com.vaistra.master.service.mines_master.MineralService;
 import jakarta.validation.Valid;
@@ -27,8 +28,8 @@ public class MineralController {
         return new ResponseEntity<>(mineralService.addMineral(mineralDto), HttpStatus.OK);
     }
 
-    @PutMapping("/{mineralId}")
-    public ResponseEntity<String> updateMineral(@PathVariable Integer mineralId, @RequestBody @Valid MineralDto mineralDto){
+    @PatchMapping("/{mineralId}")
+    public ResponseEntity<String> updateMineral(@PathVariable Integer mineralId, @RequestBody @Valid MineralDto_Update mineralDto){
         return new ResponseEntity<>(mineralService.updateMineral(mineralId,mineralDto), HttpStatus.OK);
     }
 

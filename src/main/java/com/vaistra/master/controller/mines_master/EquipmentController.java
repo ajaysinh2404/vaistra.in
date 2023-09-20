@@ -3,6 +3,7 @@ package com.vaistra.master.controller.mines_master;
 
 import com.vaistra.master.dto.HttpResponse;
 import com.vaistra.master.dto.mines_master.EquipmentDto;
+import com.vaistra.master.dto.mines_master.EquipmentDto_Update;
 import com.vaistra.master.dto.mines_master.VehicleDto;
 import com.vaistra.master.service.mines_master.EquipmentService;
 import jakarta.validation.Valid;
@@ -26,8 +27,8 @@ public class EquipmentController {
         return new ResponseEntity<>(equipmentService.addEquipment(equipmentDto), HttpStatus.OK);
     }
 
-    @PutMapping("/{equipmentId}")
-    public ResponseEntity<String> updateEquipment(@PathVariable Integer equipmentId, @RequestBody @Valid EquipmentDto equipmentDto){
+    @PatchMapping("/{equipmentId}")
+    public ResponseEntity<String> updateEquipment(@PathVariable Integer equipmentId, @RequestBody @Valid EquipmentDto_Update equipmentDto){
         return new ResponseEntity<>(equipmentService.updateEquipment(equipmentId,equipmentDto), HttpStatus.OK);
     }
 

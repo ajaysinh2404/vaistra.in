@@ -10,12 +10,10 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class VehicleDto {
+
+public class VehicleDto_Update {
     private Integer vehicleId;
 
-    @NotEmpty(message = "Vehicle Name shouldn't be empty.")
-    @NotNull(message = "Vehicle Name  shouldn't be null.")
-    @NotBlank(message = "Vehicle Name shouldn't be blank.")
     @Pattern(regexp = "^[a-zA-Z0-9\\s]+$", message = "Vehicle Name should only contain alphabets,numeric and spaces.")
     @Size(min = 2, max = 250, message = "Vehicle Name should have a length between 2 and 250 characters.")
     private String vehicleName;

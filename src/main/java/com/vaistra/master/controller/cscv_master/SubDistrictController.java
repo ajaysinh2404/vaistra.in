@@ -2,6 +2,7 @@ package com.vaistra.master.controller.cscv_master;
 
 import com.vaistra.master.dto.HttpResponse;
 import com.vaistra.master.dto.cscv_master.SubDistrictDto;
+import com.vaistra.master.dto.cscv_master.SubDistrictDto_Update;
 import com.vaistra.master.service.cscv_master.SubDistrictService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +28,8 @@ public class SubDistrictController {
         return new ResponseEntity<>(subDistrictService.addSubDistrict(subDistrictDto), HttpStatus.OK);
     }
 
-    @PutMapping("/{subDistrictId}")
-    public ResponseEntity<String> updateSubDistrict(@PathVariable Integer subDistrictId, @RequestBody @Valid SubDistrictDto subDistrictDto){
+    @PatchMapping("/{subDistrictId}")
+    public ResponseEntity<String> updateSubDistrict(@PathVariable Integer subDistrictId, @RequestBody @Valid SubDistrictDto_Update subDistrictDto){
         return new ResponseEntity<>(subDistrictService.updateSubDistrict(subDistrictId,subDistrictDto), HttpStatus.OK);
     }
 

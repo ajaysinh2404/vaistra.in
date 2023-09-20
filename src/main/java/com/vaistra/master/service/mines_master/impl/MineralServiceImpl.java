@@ -3,6 +3,7 @@ package com.vaistra.master.service.mines_master.impl;
 
 import com.vaistra.master.dto.HttpResponse;
 import com.vaistra.master.dto.mines_master.MineralDto;
+import com.vaistra.master.dto.mines_master.MineralDto_Update;
 import com.vaistra.master.dto.mines_master.VehicleDto;
 import com.vaistra.master.entity.mines_master.Mineral;
 import com.vaistra.master.entity.mines_master.Vehicle;
@@ -63,32 +64,43 @@ public class MineralServiceImpl implements MineralService {
     }
 
     @Override
-    public String updateMineral(Integer mineralId, MineralDto mineralDto) {
+    public String updateMineral(Integer mineralId, MineralDto_Update mineralDto) {
         Mineral mineral = mineralRepository.findById(mineralId).orElseThrow(()->new ResourceNotFoundException("Mineral not found with given id: " + mineralId));
 
-        Mineral mineralWithSameName = mineralRepository.findByMineralNameIgnoreCase(mineralDto.getMineralName().trim());
 
-        if(mineralWithSameName != null && !mineralWithSameName.getMineralId().equals(mineral.getMineralId())){
-            throw new DuplicateEntryException("Mineral : " + mineralDto.getMineralName() + " is already exist in current record...!");
+        if(mineralDto.getMineralName()!=null){
+            Mineral mineralWithSameName = mineralRepository.findByMineralNameIgnoreCase(mineralDto.getMineralName().trim());
+
+            if(mineralWithSameName != null && !mineralWithSameName.getMineralId().equals(mineral.getMineralId())){
+                throw new DuplicateEntryException("Mineral : " + mineralDto.getMineralName() + " is already exist in current record...!");
+            }
+            mineral.setMineralName(mineralDto.getMineralName().trim());
         }
 
-        Mineral atrWithSameName = mineralRepository.findByAtrNameIgnoreCase(mineralDto.getAtrName().trim());
+        if(mineralDto.getAtrName()!=null){
+            Mineral atrWithSameName = mineralRepository.findByAtrNameIgnoreCase(mineralDto.getAtrName().trim());
 
-        if(atrWithSameName != null && !atrWithSameName.getMineralId().equals(mineral.getMineralId())){
-            throw new DuplicateEntryException("ATR : " + mineralDto.getAtrName() + " is already exist in current record...!");
+            if(atrWithSameName != null && !atrWithSameName.getMineralId().equals(mineral.getMineralId())){
+                throw new DuplicateEntryException("ATR : " + mineralDto.getAtrName() + " is already exist in current record...!");
+            }
+            mineral.setAtrName(mineralDto.getAtrName().trim());
         }
 
-        Mineral hsnWithSameName = mineralRepository.findByHsnCodeIgnoreCase(mineralDto.getHsnCode().trim());
+        if(mineralDto.getHsnCode()!=null){
+            Mineral hsnWithSameName = mineralRepository.findByHsnCodeIgnoreCase(mineralDto.getHsnCode().trim());
 
-        if(hsnWithSameName != null && !hsnWithSameName.getMineralId().equals(mineral.getMineralId())){
-            throw new DuplicateEntryException("HSN Code : " + mineralDto.getHsnCode() + " is already exist in current record...!");
+            if(hsnWithSameName != null && !hsnWithSameName.getMineralId().equals(mineral.getMineralId())){
+                throw new DuplicateEntryException("HSN Code : " + mineralDto.getHsnCode() + " is already exist in current record...!");
+            }
+            mineral.setHsnCode(mineralDto.getHsnCode().trim());
         }
 
-        mineral.setMineralName(mineralDto.getMineralName().trim());
-        mineral.setCategory(mineralDto.getCategory().trim());
-        mineral.setAtrName(mineralDto.getAtrName().trim());
-        mineral.setHsnCode(mineralDto.getHsnCode().trim());
-        mineral.setGrade(Arrays.asList(mineralDto.getGrade()));
+
+        if(mineralDto.getCategory()!=null)
+            mineral.setCategory(mineralDto.getCategory().trim());
+
+        if (mineralDto.getGrade()!=null)
+            mineral.setGrade(Arrays.asList(mineralDto.getGrade()));
 
         mineralRepository.save(mineral);
 

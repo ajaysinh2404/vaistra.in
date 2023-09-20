@@ -2,6 +2,7 @@ package com.vaistra.master.service.cscv_master.impl;
 
 import com.vaistra.master.dto.HttpResponse;
 import com.vaistra.master.dto.cscv_master.StateDto;
+import com.vaistra.master.dto.cscv_master.StateDto_Update;
 import com.vaistra.master.entity.cscv_master.Country;
 import com.vaistra.master.entity.cscv_master.State;
 import com.vaistra.master.exception.DuplicateEntryException;
@@ -66,20 +67,27 @@ public class StateServiceImpl implements StateService {
     }
 
     @Override
-    public String updateState(Integer stateId, StateDto stateDto) {
+    public String updateState(Integer stateId, StateDto_Update stateDto) {
         State state = stateRepository.findById(stateId).orElseThrow(()-> new ResourceNotFoundException("State not found with given id: " + stateId));
 
-        State stateWithSamename = stateRepository.findByStateNameIgnoreCase(stateDto.getStateName().trim());
+        if(stateDto.getStateName()!=null) {
 
-        if(stateWithSamename != null && !stateWithSamename.getStateId().equals(state.getStateId())){
-            throw new DuplicateEntryException("State : " + stateDto.getStateName() + " is already exist in current record...!");
+            State stateWithSamename = stateRepository.findByStateNameIgnoreCase(stateDto.getStateName().trim());
+
+            if (stateWithSamename != null && !stateWithSamename.getStateId().equals(state.getStateId())) {
+                throw new DuplicateEntryException("State : " + stateDto.getStateName() + " is already exist in current record...!");
+            }
+            state.setStateName(stateDto.getStateName().trim());
         }
 
-        Country country = countryRepository.findById(stateDto.getCountryId()).orElseThrow(()->new ResourceNotFoundException("Country not found with given id: " + stateDto.getCountryId()));
+        if(stateDto.getIsActive()!=null)
+            state.setIsActive(stateDto.getIsActive());
 
-        state.setStateName(stateDto.getStateName().trim());
-        state.setIsActive(stateDto.getIsActive());
-        state.setCountry(country);
+        if(stateDto.getCountryId()!=null) {
+            Country country = countryRepository.findById(stateDto.getCountryId()).orElseThrow(() -> new ResourceNotFoundException("Country not found with given id: " + stateDto.getCountryId()));
+            state.setCountry(country);
+        }
+
 
         stateRepository.save(state);
 

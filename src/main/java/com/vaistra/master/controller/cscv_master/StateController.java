@@ -2,6 +2,7 @@ package com.vaistra.master.controller.cscv_master;
 
 import com.vaistra.master.dto.HttpResponse;
 import com.vaistra.master.dto.cscv_master.StateDto;
+import com.vaistra.master.dto.cscv_master.StateDto_Update;
 import com.vaistra.master.service.cscv_master.StateService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -26,8 +27,8 @@ public class StateController {
         return new ResponseEntity<>(stateService.addState(stateDto), HttpStatus.OK);
     }
 
-    @PutMapping("/{stateId}")
-    public ResponseEntity<String> updateState(@PathVariable Integer stateId, @RequestBody @Valid StateDto stateDto){
+    @PatchMapping("/{stateId}")
+    public ResponseEntity<String> updateState(@PathVariable Integer stateId, @RequestBody @Valid StateDto_Update stateDto){
         return new ResponseEntity<>(stateService.updateState(stateId,stateDto), HttpStatus.OK);
     }
 

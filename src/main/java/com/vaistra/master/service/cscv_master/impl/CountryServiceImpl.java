@@ -1,5 +1,6 @@
 package com.vaistra.master.service.cscv_master.impl;
 
+import com.vaistra.master.dto.cscv_master.CountryDto_Update;
 import org.apache.commons.csv.CSVParser;
 import com.vaistra.master.dto.HttpResponse;
 import com.vaistra.master.dto.cscv_master.CountryDto;
@@ -58,17 +59,22 @@ public class CountryServiceImpl implements CountryService {
     }
 
     @Override
-    public String updateCountry(Integer countryId, CountryDto countryDto) {
+    public String updateCountry(Integer countryId, CountryDto_Update countryDto) {
         Country country = countryRepository.findById(countryId).orElseThrow(()-> new ResourceNotFoundException("Country not found with given id: " + countryId));
 
-        Country countryWithSamename = countryRepository.findByCountryNameIgnoreCase(countryDto.getCountryName().trim());
+        if(countryDto.getCountryName() != null){
+            Country countryWithSamename = countryRepository.findByCountryNameIgnoreCase(countryDto.getCountryName().trim());
 
-        if(countryWithSamename != null && !countryWithSamename.getCountryId().equals(country.getCountryId())){
-            throw new DuplicateEntryException("Country : " + countryDto.getCountryName() + " is already exist in current record...!");
+            if(countryWithSamename != null && !countryWithSamename.getCountryId().equals(country.getCountryId())){
+                throw new DuplicateEntryException("Country : " + countryDto.getCountryName() + " is already exist in current record...!");
+            }
+
+            country.setCountryName(countryDto.getCountryName().trim());
+
         }
 
-        country.setCountryName(countryDto.getCountryName().trim());
-        country.setIsActive(countryDto.getIsActive());
+        if(countryDto.getIsActive() != null)
+            country.setIsActive(countryDto.getIsActive());
 
         countryRepository.save(country);
 

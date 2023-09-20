@@ -3,6 +3,7 @@ package com.vaistra.master.controller.bank_manage;
 
 import com.vaistra.master.dto.HttpResponse;
 import com.vaistra.master.dto.bank_manage.BankBranchDto;
+import com.vaistra.master.dto.bank_manage.BankBranchDto_Update;
 import com.vaistra.master.service.bank_manage.BankBranchService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +27,8 @@ public class BankBranchContoller {
         return new ResponseEntity<>(bankBranchService.addBankBranch(bankBranchDto), HttpStatus.OK);
     }
 
-    @PutMapping("/{branchId}")
-    public ResponseEntity<String> updateBankBranch(@PathVariable Integer branchId, @RequestBody @Valid BankBranchDto bankBranchDto){
+    @PatchMapping("/{branchId}")
+    public ResponseEntity<String> updateBankBranch(@PathVariable Integer branchId, @RequestBody @Valid BankBranchDto_Update bankBranchDto){
         return new ResponseEntity<>(bankBranchService.updateBankBranch(branchId,bankBranchDto), HttpStatus.OK);
 
     }

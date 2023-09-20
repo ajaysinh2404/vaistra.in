@@ -3,6 +3,7 @@ package com.vaistra.master.controller.mines_master;
 
 import com.vaistra.master.dto.HttpResponse;
 import com.vaistra.master.dto.mines_master.EntityTypeDto;
+import com.vaistra.master.dto.mines_master.EntityTypeDto_Update;
 import com.vaistra.master.dto.mines_master.EquipmentDto;
 import com.vaistra.master.service.mines_master.EntityTypeService;
 import jakarta.validation.Valid;
@@ -26,8 +27,8 @@ public class EntityTypeController {
         return new ResponseEntity<>(entityTypeService.addEntityType(entityTypeDto), HttpStatus.OK);
     }
 
-    @PutMapping("/{entityTypeId}")
-    public ResponseEntity<String> updateEntityType(@PathVariable Integer entityTypeId, @RequestBody @Valid EntityTypeDto entityTypeDto){
+    @PatchMapping("/{entityTypeId}")
+    public ResponseEntity<String> updateEntityType(@PathVariable Integer entityTypeId, @RequestBody @Valid EntityTypeDto_Update entityTypeDto){
         return new ResponseEntity<>(entityTypeService.updateEntityType(entityTypeId,entityTypeDto), HttpStatus.OK);
     }
 

@@ -3,6 +3,7 @@ package com.vaistra.master.service.mines_master.impl;
 
 import com.vaistra.master.dto.HttpResponse;
 import com.vaistra.master.dto.mines_master.DesignationDto;
+import com.vaistra.master.dto.mines_master.DesignationDto_Update;
 import com.vaistra.master.entity.mines_master.Designation;
 import com.vaistra.master.exception.DuplicateEntryException;
 import com.vaistra.master.exception.ResourceNotFoundException;
@@ -46,16 +47,17 @@ public class DesignationServiceImpl implements DesignationService {
     }
 
     @Override
-    public String updateDesignation(Integer designationId, DesignationDto designationDto) {
+    public String updateDesignation(Integer designationId, DesignationDto_Update designationDto) {
         Designation designation = designationRepository.findById(designationId).orElseThrow(()->new ResourceNotFoundException("Designation not found with given id: " + designationId));
 
-        Designation designationWithSameName = designationRepository.findByDesignationNameIgnoreCase(designationDto.getDesignationName().trim());
+        if(designationDto.getDesignationName()!=null){
+            Designation designationWithSameName = designationRepository.findByDesignationNameIgnoreCase(designationDto.getDesignationName().trim());
 
-        if(designationWithSameName != null && !designationWithSameName.getDesignationId().equals(designation.getDesignationId())){
-            throw new DuplicateEntryException("Designation : " + designationDto.getDesignationName() + " is already exist in current record...!");
+            if(designationWithSameName != null && !designationWithSameName.getDesignationId().equals(designation.getDesignationId())){
+                throw new DuplicateEntryException("Designation : " + designationDto.getDesignationName() + " is already exist in current record...!");
+            }
+            designation.setDesignationName(designationDto.getDesignationName().trim());
         }
-
-        designation.setDesignationName(designationDto.getDesignationName().trim());
 
         designationRepository.save(designation);
 

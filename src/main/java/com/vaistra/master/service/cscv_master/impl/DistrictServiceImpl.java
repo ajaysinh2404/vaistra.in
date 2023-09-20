@@ -2,6 +2,7 @@ package com.vaistra.master.service.cscv_master.impl;
 
 import com.vaistra.master.dto.HttpResponse;
 import com.vaistra.master.dto.cscv_master.DistrictDto;
+import com.vaistra.master.dto.cscv_master.DistrictDto_Update;
 import com.vaistra.master.entity.cscv_master.Country;
 import com.vaistra.master.entity.cscv_master.District;
 import com.vaistra.master.entity.cscv_master.State;
@@ -70,24 +71,31 @@ public class DistrictServiceImpl implements DistrictService {
     }
 
     @Override
-    public String updateDistrict(Integer districtId, DistrictDto districtDto) {
+    public String updateDistrict(Integer districtId, DistrictDto_Update districtDto) {
         District district = districtRepository.findById(districtId).orElseThrow(()->new ResourceNotFoundException("District not found with given id: " + districtId));
 
-        District districtWithSameName = districtRepository.findByDistrictNameIgnoreCase(districtDto.getDistrictName().trim());
+        if(districtDto.getDistrictName()!=null) {
+            District districtWithSameName = districtRepository.findByDistrictNameIgnoreCase(districtDto.getDistrictName().trim());
 
-        if(districtWithSameName != null && !districtWithSameName.getDistrictId().equals(district.getDistrictId())){
-            throw new DuplicateEntryException("District : " + districtDto.getDistrictName() + " is already exist in current record...!");
+            if (districtWithSameName != null && !districtWithSameName.getDistrictId().equals(district.getDistrictId())) {
+                throw new DuplicateEntryException("District : " + districtDto.getDistrictName() + " is already exist in current record...!");
+            }
+            district.setDistrictName(districtDto.getDistrictName().trim());
         }
 
+        if(districtDto.getStateId()!=null) {
+            State state = stateRepository.findById(districtDto.getStateId()).orElseThrow(() -> new ResourceNotFoundException("State not found with given id: " + districtDto.getStateId()));
+            district.setState(state);
+        }
 
-        State state = stateRepository.findById(districtDto.getStateId()).orElseThrow(()->new ResourceNotFoundException("State not found with given id: " + districtDto.getStateId()));
-        Country country = countryRepository.findById(districtDto.getCountryId()).orElseThrow(()->new ResourceNotFoundException("Country not found with given id: " + districtDto.getCountryId()));
+        if(districtDto.getCountryId()!=null){
+            Country country = countryRepository.findById(districtDto.getCountryId()).orElseThrow(()->new ResourceNotFoundException("Country not found with given id: " + districtDto.getCountryId()));
+            district.setCountry(country);
+        }
 
-
-        district.setDistrictName(districtDto.getDistrictName().trim());
-        district.setIsActive(districtDto.getIsActive());
-        district.setState(state);
-        district.setCountry(country);
+        if(districtDto.getIsActive()!=null){
+            district.setIsActive(districtDto.getIsActive());
+        }
 
         districtRepository.save(district);
 

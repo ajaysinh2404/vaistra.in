@@ -2,6 +2,7 @@ package com.vaistra.master.controller.bank_manage;
 
 import com.vaistra.master.dto.HttpResponse;
 import com.vaistra.master.dto.bank_manage.BankDto;
+import com.vaistra.master.dto.bank_manage.BankDto_Update;
 import com.vaistra.master.exception.FileSizeExceedException;
 import com.vaistra.master.service.bank_manage.BankService;
 import jakarta.validation.Valid;
@@ -32,8 +33,8 @@ public class BankController {
         return new ResponseEntity<>(bankService.addBank(bankDto,file), HttpStatus.OK);
     }
 
-    @PutMapping("/{bankId}")
-    public ResponseEntity<String> updateBank(@PathVariable Integer bankId, @RequestPart @Valid BankDto bankDto, @RequestPart MultipartFile file) throws IOException {
+    @PatchMapping("/{bankId}")
+    public ResponseEntity<String> updateBank(@PathVariable Integer bankId, @RequestPart @Valid BankDto_Update bankDto, @RequestPart MultipartFile file) throws IOException {
             return new ResponseEntity<>(bankService.updateBank(bankId,bankDto,file), HttpStatus.OK);
 
     }

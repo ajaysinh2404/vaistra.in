@@ -2,6 +2,7 @@ package com.vaistra.master.service.bank_manage.impl;
 
 import com.vaistra.master.dto.HttpResponse;
 import com.vaistra.master.dto.bank_manage.BankDto;
+import com.vaistra.master.dto.bank_manage.BankDto_Update;
 import com.vaistra.master.entity.bank_manage.Bank;
 import com.vaistra.master.exception.DuplicateEntryException;
 import com.vaistra.master.exception.FileSizeExceedException;
@@ -75,41 +76,45 @@ public class BankServiceImpl implements BankService {
 
     @Transactional
     @Override
-    public String updateBank(Integer bankId, BankDto bankDto, MultipartFile file) throws IOException {
-        String extension = file.getOriginalFilename();
-
+    public String updateBank(Integer bankId, BankDto_Update bankDto, MultipartFile file) throws IOException {
         Bank bank = bankRepository.findById(bankId).orElseThrow(()->new ResourceNotFoundException("Bank not found with given id: " + bankId));
 
-        Bank bankWithSameName = bankRepository.findByBankLongNameIgnoreCase(bankDto.getBankLongName().trim());
+        if (bankDto.getBankLongName()!=null){
+            Bank bankWithSameName = bankRepository.findByBankLongNameIgnoreCase(bankDto.getBankLongName().trim());
 
-        if(bankWithSameName != null && !bankWithSameName.getBankId().equals(bank.getBankId())){
-            throw new DuplicateEntryException("Bank : " + bankDto.getBankLongName() + " is already exist in current record...!");
+            if(bankWithSameName != null && !bankWithSameName.getBankId().equals(bank.getBankId())){
+                throw new DuplicateEntryException("Bank : " + bankDto.getBankLongName() + " is already exist in current record...!");
+            }
+            bank.setBankLongName(bankDto.getBankLongName().trim());
         }
 
-        Bank bankShortNameWithSameName = bankRepository.findByBankShortNameIgnoreCase(bankDto.getBankShortName().trim());
+        if(bankDto.getBankShortName()!=null){
+            Bank bankShortNameWithSameName = bankRepository.findByBankShortNameIgnoreCase(bankDto.getBankShortName().trim());
 
-        if(bankShortNameWithSameName != null && !bankShortNameWithSameName.getBankId().equals(bank.getBankId())){
-            throw new DuplicateEntryException("Bank short name : " + bankDto.getBankShortName() + " is already exist in current record...!");
+            if(bankShortNameWithSameName != null && !bankShortNameWithSameName.getBankId().equals(bank.getBankId())){
+                throw new DuplicateEntryException("Bank short name : " + bankDto.getBankShortName() + " is already exist in current record...!");
+            }
+            bank.setBankShortName(bankDto.getBankShortName().trim());
         }
 
-        if(file.isEmpty()){
-            throw new ResourceNotFoundException("Logo file not found...!");
+        if (!file.isEmpty()){
+            String extension = file.getOriginalFilename();
+
+            assert extension != null;
+            if(!appUtilsBank.isSupportedExtension(extension)){
+                throw new ResourceNotFoundException("Only JPG,PNG allowed..!");
+            }
+
+            long fileSizeLimit = 5120L;
+            if (file.getSize() > fileSizeLimit) {
+                throw new FileSizeExceedException("File size exceeds the limit (5KB).");
+            }
+            bank.setBankLogo(file.getBytes());
+
         }
 
-        assert extension != null;
-        if(!appUtilsBank.isSupportedExtension(extension)){
-            throw new ResourceNotFoundException("Only JPG,PNG allowed..!");
-        }
-
-        long fileSizeLimit = 5120L;
-        if (file.getSize() > fileSizeLimit) {
-            throw new FileSizeExceedException("File size exceeds the limit (5KB).");
-        }
-
-        bank.setBankLogo(file.getBytes());
-        bank.setBankLongName(bankDto.getBankLongName().trim());
-        bank.setBankShortName(bankDto.getBankShortName().trim());
-        bank.setIsActive(bankDto.getIsActive());
+        if (bankDto.getIsActive()!=null)
+            bank.setIsActive(bankDto.getIsActive());
 
         bankRepository.save(bank);
 

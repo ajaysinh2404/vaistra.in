@@ -3,6 +3,7 @@ package com.vaistra.master.service.mines_master.impl;
 import com.vaistra.master.dto.HttpResponse;
 import com.vaistra.master.dto.cscv_master.VillageDto;
 import com.vaistra.master.dto.mines_master.VehicleDto;
+import com.vaistra.master.dto.mines_master.VehicleDto_Update;
 import com.vaistra.master.entity.cscv_master.Village;
 import com.vaistra.master.entity.mines_master.Vehicle;
 import com.vaistra.master.exception.DuplicateEntryException;
@@ -48,16 +49,18 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Override
-    public String updateVehicle(Integer vehicleId, VehicleDto vehicleDto) {
+    public String updateVehicle(Integer vehicleId, VehicleDto_Update vehicleDto) {
         Vehicle vehicle = vehicleRepository.findById(vehicleId).orElseThrow(()->new ResourceNotFoundException("Vehicle not found with given id: " + vehicleId));
 
-        Vehicle vehicleWithSameName = vehicleRepository.findByVehicleNameIgnoreCase(vehicleDto.getVehicleName().trim());
+        if(vehicleDto.getVehicleName()!=null){
+            Vehicle vehicleWithSameName = vehicleRepository.findByVehicleNameIgnoreCase(vehicleDto.getVehicleName().trim());
 
-        if(vehicleWithSameName != null && !vehicleWithSameName.getVehicleId().equals(vehicle.getVehicleId())){
-            throw new DuplicateEntryException("Vehicle : " + vehicleDto.getVehicleName() + " is already exist in current record...!");
+            if(vehicleWithSameName != null && !vehicleWithSameName.getVehicleId().equals(vehicle.getVehicleId())){
+                throw new DuplicateEntryException("Vehicle : " + vehicleDto.getVehicleName() + " is already exist in current record...!");
+            }
+
+            vehicle.setVehicleName(vehicleDto.getVehicleName().trim());
         }
-
-        vehicle.setVehicleName(vehicleDto.getVehicleName().trim());
 
         vehicleRepository.save(vehicle);
 

@@ -2,6 +2,7 @@ package com.vaistra.master.service.mines_master.impl;
 
 import com.vaistra.master.dto.HttpResponse;
 import com.vaistra.master.dto.mines_master.EquipmentDto;
+import com.vaistra.master.dto.mines_master.EquipmentDto_Update;
 import com.vaistra.master.entity.mines_master.Equipment;
 import com.vaistra.master.exception.DuplicateEntryException;
 import com.vaistra.master.exception.ResourceNotFoundException;
@@ -46,16 +47,19 @@ public class EquipmentServiceImpl implements EquipmentService {
     }
 
     @Override
-    public String updateEquipment(Integer equipmentId, EquipmentDto equipmentDto) {
+    public String updateEquipment(Integer equipmentId, EquipmentDto_Update equipmentDto) {
         Equipment equipment = equipmentRepository.findById(equipmentId).orElseThrow(()->new ResourceNotFoundException("Equipment not found with given id: " + equipmentId));
 
-        Equipment equipmentWithSameName = equipmentRepository.findByEquipmentNameIgnoreCase(equipmentDto.getEquipmentName().trim());
 
-        if(equipmentWithSameName != null && !equipmentWithSameName.getEquipmentId().equals(equipment.getEquipmentId())){
-            throw new DuplicateEntryException("Equipment : " + equipmentDto.getEquipmentName() + " is already exist in current record...!");
+        if(equipmentDto.getEquipmentName()!=null){
+            Equipment equipmentWithSameName = equipmentRepository.findByEquipmentNameIgnoreCase(equipmentDto.getEquipmentName().trim());
+
+            if(equipmentWithSameName != null && !equipmentWithSameName.getEquipmentId().equals(equipment.getEquipmentId())){
+                throw new DuplicateEntryException("Equipment : " + equipmentDto.getEquipmentName() + " is already exist in current record...!");
+            }
+
+            equipment.setEquipmentName(equipmentDto.getEquipmentName().trim());
         }
-
-        equipment.setEquipmentName(equipmentDto.getEquipmentName().trim());
 
         equipmentRepository.save(equipment);
 

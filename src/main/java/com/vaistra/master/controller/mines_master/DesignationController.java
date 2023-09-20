@@ -3,6 +3,7 @@ package com.vaistra.master.controller.mines_master;
 
 import com.vaistra.master.dto.HttpResponse;
 import com.vaistra.master.dto.mines_master.DesignationDto;
+import com.vaistra.master.dto.mines_master.DesignationDto_Update;
 import com.vaistra.master.dto.mines_master.EquipmentDto;
 import com.vaistra.master.service.mines_master.DesignationService;
 import jakarta.validation.Valid;
@@ -27,8 +28,8 @@ public class DesignationController {
         return new ResponseEntity<>(designationService.addDesignation(designationDto), HttpStatus.OK);
     }
 
-    @PutMapping("/{designationId}")
-    public ResponseEntity<String> updateDesignation(@PathVariable Integer designationId, @RequestBody @Valid DesignationDto designationDto){
+    @PatchMapping("/{designationId}")
+    public ResponseEntity<String> updateDesignation(@PathVariable Integer designationId, @RequestBody @Valid DesignationDto_Update designationDto){
         return new ResponseEntity<>(designationService.updateDesignation(designationId,designationDto), HttpStatus.OK);
     }
 

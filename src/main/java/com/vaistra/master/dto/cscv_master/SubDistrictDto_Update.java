@@ -10,13 +10,9 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-
-public class SubDistrictDto {
+public class SubDistrictDto_Update {
     private Integer subDistrictId;
 
-    @NotEmpty(message = "Sub-district name shouldn't be empty.")
-    @NotNull(message = "Sub-district name shouldn't be null.")
-    @NotBlank(message = "Sub-district name shouldn't be blank.")
     @Pattern(regexp = "^[a-zA-Z\\s]+$", message = "Sub-district name should only contain alphabets and spaces.")
     @Size(min = 3, max = 250, message = "Sub-district name should have a length between 3 and 250 characters.")
     private String subDistrictName;

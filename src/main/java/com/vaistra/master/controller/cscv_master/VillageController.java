@@ -2,6 +2,7 @@ package com.vaistra.master.controller.cscv_master;
 
 import com.vaistra.master.dto.HttpResponse;
 import com.vaistra.master.dto.cscv_master.VillageDto;
+import com.vaistra.master.dto.cscv_master.VillageDto_Update;
 import com.vaistra.master.service.cscv_master.VillageService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +27,8 @@ public class VillageController {
         return new ResponseEntity<>(villageService.addVillage(villageDto), HttpStatus.OK);
     }
 
-    @PutMapping("/{villageId}")
-    public ResponseEntity<String> updateVillage(@PathVariable Integer villageId, @RequestBody @Valid VillageDto villageDto){
+    @PatchMapping("/{villageId}")
+    public ResponseEntity<String> updateVillage(@PathVariable Integer villageId, @RequestBody @Valid VillageDto_Update villageDto){
         return new ResponseEntity<>(villageService.updateVillage(villageId,villageDto), HttpStatus.OK);
     }
 

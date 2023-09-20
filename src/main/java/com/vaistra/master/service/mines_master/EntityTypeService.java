@@ -2,12 +2,13 @@ package com.vaistra.master.service.mines_master;
 
 import com.vaistra.master.dto.HttpResponse;
 import com.vaistra.master.dto.mines_master.EntityTypeDto;
+import com.vaistra.master.dto.mines_master.EntityTypeDto_Update;
 import com.vaistra.master.dto.mines_master.EquipmentDto;
 
 public interface EntityTypeService {
     public String addEntityType(EntityTypeDto entityTypeDto);
 
-    public String updateEntityType(Integer entityTypeId, EntityTypeDto entityTypeDto);
+    public String updateEntityType(Integer entityTypeId, EntityTypeDto_Update entityTypeDto);
 
     public String deleteEntityType(Integer entityTypeId);
 

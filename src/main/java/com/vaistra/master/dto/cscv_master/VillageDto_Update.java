@@ -8,20 +8,21 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 
-public class SubDistrictDto {
-    private Integer subDistrictId;
+public class VillageDto_Update {
+    private Integer villageId;
 
-    @NotEmpty(message = "Sub-district name shouldn't be empty.")
-    @NotNull(message = "Sub-district name shouldn't be null.")
-    @NotBlank(message = "Sub-district name shouldn't be blank.")
-    @Pattern(regexp = "^[a-zA-Z\\s]+$", message = "Sub-district name should only contain alphabets and spaces.")
-    @Size(min = 3, max = 250, message = "Sub-district name should have a length between 3 and 250 characters.")
-    private String subDistrictName;
+    @Pattern(regexp = "^[a-zA-Z\\s]+$", message = "Village name should only contain alphabets and spaces.")
+    @Size(min = 3, max = 250, message = "Village name should have a length between 3 and 250 characters.")
+    private String villageName;
 
     private Boolean isActive;
+
+    @NotNull(message = "Sub-district id shouldn't be null.")
+    @Min(value=0,message = "Sub-district Id should be positive digits only.")
+    private Integer subDistrictId;
 
     @NotNull(message = "District id shouldn't be null.")
     @Min(value=0,message = "District Id should be positive digits only.")
@@ -42,5 +43,8 @@ public class SubDistrictDto {
 
     @Pattern(regexp = "^[a-zA-Z\\s]+$", message = "District name should only contain alphabets and spaces.")
     private String districtName;
+
+    @Pattern(regexp = "^[a-zA-Z\\s]+$", message = "District name should only contain alphabets and spaces.")
+    private String subDistrictName;
 
 }
