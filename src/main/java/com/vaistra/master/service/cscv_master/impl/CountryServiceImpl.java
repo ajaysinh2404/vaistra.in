@@ -1,6 +1,5 @@
 package com.vaistra.master.service.cscv_master.impl;
 
-import com.vaistra.master.batchConfig.cscv_master.country.CountryBatchConfig;
 import com.vaistra.master.dto.cscv_master.CountryDto_Update;
 import org.apache.commons.csv.CSVParser;
 import com.vaistra.master.dto.HttpResponse;
@@ -13,24 +12,21 @@ import com.vaistra.master.repository.cscv_master.CountryRepository;
 import com.vaistra.master.service.cscv_master.CountryService;
 import com.vaistra.master.utils.cscv_master.AppUtils;
 import org.apache.commons.csv.CSVFormat;
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobParameters;
-import org.springframework.batch.core.JobParametersBuilder;
+import org.springframework.batch.core.*;
 import org.springframework.batch.core.launch.JobLauncher;
-import org.springframework.batch.core.repository.JobRepository;
-import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -43,12 +39,19 @@ import java.util.function.Predicate;
 public class CountryServiceImpl implements CountryService {
     private final AppUtils appUtils;
     private final CountryRepository countryRepository;
+    private final JobLauncher jobLauncher;
+    private final Job job;
+
+    private final String localStorage = "C:/Users/admin/Desktop/LocalStorage/";
+
 
     @Autowired
-    public CountryServiceImpl(AppUtils appUtils, CountryRepository countryRepository){
+    public CountryServiceImpl(AppUtils appUtils, CountryRepository countryRepository, JobLauncher jobLauncher, Job job){
 
         this.appUtils = appUtils;
         this.countryRepository = countryRepository;
+        this.jobLauncher = jobLauncher;
+        this.job = job;
     }
     @Override
     public String addCountry(CountryDto countryDto) {
@@ -235,24 +238,28 @@ public class CountryServiceImpl implements CountryService {
 
     @Override
     public String uploadCountryCSVBatch(MultipartFile file) throws IOException {
-       /* try {
+       try {
             String orignalFileName = file.getOriginalFilename();
             assert orignalFileName != null;
-            File fileToImport = new File(orignalFileName);
+            File fileToImport = new File(localStorage + orignalFileName);
+            file.transferTo(fileToImport);
 
             JobParameters jobParameters = new JobParametersBuilder()
-                    .addString("inputFile", fileToImport.getAbsolutePath())
+                    .addString("inputFile", localStorage + orignalFileName)
                     .toJobParameters();
 
-            jobLauncher.run(job, jobParameters);
+            JobExecution execution =  jobLauncher.run(job, jobParameters);
+
+            if (execution.getExitStatus().getExitCode().equals(ExitStatus.COMPLETED)){
+                Files.deleteIfExists(Paths.get(localStorage + orignalFileName));
+            }
 
             return "Import Successfully";
 
         }catch (Exception e){
             return e.getMessage();
-        }*/
+        }
 
-        return null;
     }
 
     private static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {

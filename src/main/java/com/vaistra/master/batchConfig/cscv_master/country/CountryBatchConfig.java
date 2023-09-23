@@ -1,7 +1,6 @@
 package com.vaistra.master.batchConfig.cscv_master.country;
 
 import com.vaistra.master.entity.cscv_master.Country;
-import org.apache.catalina.webresources.FileResource;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.StepScope;
@@ -19,7 +18,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import java.io.File;
@@ -28,7 +26,7 @@ import java.io.File;
 @Configuration
 
 public class CountryBatchConfig {
-    /*@Bean
+    @Bean
     public Job countryReaderJob(JobRepository jobRepository, PlatformTransactionManager transactionManager, FlatFileItemReader<Country> reader){
         return new JobBuilder("countryReadJob",jobRepository)
                 .incrementer(new RunIdIncrementer())
@@ -39,10 +37,11 @@ public class CountryBatchConfig {
     @Bean
     public Step chunkStep(JobRepository jobRepository, PlatformTransactionManager transactionManager,FlatFileItemReader<Country> reader){
         return new StepBuilder("countryReaderStep",jobRepository)
-                .<Country, Country>chunk(50,transactionManager)
+                .<Country, Country>chunk(500000,transactionManager)
                 .reader(reader)
                 .processor(processor())
                 .writer(writer())
+                .allowStartIfComplete(true)
                 .build();
     }
 
@@ -73,6 +72,7 @@ public class CountryBatchConfig {
                     setTargetType(Country.class);
                 }})
                 .linesToSkip(1)
+                .strict(false)  // Set to non-strict mode
                 .build();
-    }*/
+    }
 }
