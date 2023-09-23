@@ -1,5 +1,6 @@
 package com.vaistra.master.service.cscv_master.impl;
 
+import com.vaistra.master.batchConfig.cscv_master.country.CountryBatchConfig;
 import com.vaistra.master.dto.cscv_master.CountryDto_Update;
 import org.apache.commons.csv.CSVParser;
 import com.vaistra.master.dto.HttpResponse;
@@ -12,18 +13,27 @@ import com.vaistra.master.repository.cscv_master.CountryRepository;
 import com.vaistra.master.service.cscv_master.CountryService;
 import com.vaistra.master.utils.cscv_master.AppUtils;
 import org.apache.commons.csv.CSVFormat;
+import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.JobParametersBuilder;
+import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -32,9 +42,7 @@ import java.util.function.Predicate;
 @Service
 public class CountryServiceImpl implements CountryService {
     private final AppUtils appUtils;
-
     private final CountryRepository countryRepository;
-
 
     @Autowired
     public CountryServiceImpl(AppUtils appUtils, CountryRepository countryRepository){
@@ -190,11 +198,23 @@ public class CountryServiceImpl implements CountryService {
             List<Country> countries = CSVParser.parse(file.getInputStream(), Charset.defaultCharset(), CSVFormat.DEFAULT)
                     .stream().skip(1) // Skip the first row
                     .map(record -> {
-                        Country country = new Country();
-                        country.setCountryName(record.get(0).trim()); // Assuming the first column is "country"
-                        country.setIsActive(Boolean.parseBoolean(record.get(1))); // Assuming the second column is "isActive"
-                        return country;
+                        String countryName = record.get(0).trim();
+                        boolean isActive = Boolean.parseBoolean(record.get(1));
+
+
+                        Optional<Country> existCountry = Optional.ofNullable(countryRepository.findByCountryNameIgnoreCase(countryName));
+
+                        if(existCountry.isPresent()){
+                            return null;
+                        }
+                        else {
+                            Country country = new Country();
+                            country.setCountryName(countryName); // Assuming the first column is "country"
+                            country.setIsActive(isActive); // Assuming the second column is "isActive"
+                            return country;
+                        }
                     })
+                    .filter(Objects::nonNull) // Filter out null entries (duplicates)
                     .toList();
 
             // Filter out duplicates by country name
@@ -211,6 +231,28 @@ public class CountryServiceImpl implements CountryService {
         }catch (Exception e){
             return e.getMessage();
         }
+    }
+
+    @Override
+    public String uploadCountryCSVBatch(MultipartFile file) throws IOException {
+       /* try {
+            String orignalFileName = file.getOriginalFilename();
+            assert orignalFileName != null;
+            File fileToImport = new File(orignalFileName);
+
+            JobParameters jobParameters = new JobParametersBuilder()
+                    .addString("inputFile", fileToImport.getAbsolutePath())
+                    .toJobParameters();
+
+            jobLauncher.run(job, jobParameters);
+
+            return "Import Successfully";
+
+        }catch (Exception e){
+            return e.getMessage();
+        }*/
+
+        return null;
     }
 
     private static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {

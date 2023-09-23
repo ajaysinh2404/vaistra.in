@@ -3,16 +3,24 @@ package com.vaistra.master.controller.cscv_master;
 import com.vaistra.master.dto.HttpResponse;
 import com.vaistra.master.dto.cscv_master.CountryDto;
 import com.vaistra.master.dto.cscv_master.CountryDto_Update;
+import com.vaistra.master.exception.ResourceNotFoundException;
 import com.vaistra.master.service.cscv_master.CountryService;
 import jakarta.validation.Valid;
+import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.JobParametersBuilder;
+import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
+
 
 @RestController
 @RequestMapping("/country")
@@ -75,4 +83,9 @@ public class CountryController {
         return new ResponseEntity<>(countryService.uploadCountryCSV(file),HttpStatus.OK);
     }
 
+
+    @PostMapping("/batchcsv")
+    public ResponseEntity<String> uploadCountryCSVBatch(@RequestParam MultipartFile file) throws IOException {
+        return new ResponseEntity<>(countryService.uploadCountryCSVBatch(file),HttpStatus.OK);
+    }
 }

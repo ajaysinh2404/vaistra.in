@@ -15,6 +15,7 @@ import com.vaistra.master.service.cscv_master.StateService;
 import com.vaistra.master.utils.cscv_master.AppUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,8 +27,10 @@ import org.springframework.web.multipart.MultipartFile;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -182,44 +185,67 @@ public class StateServiceImpl implements StateService {
             throw new IllegalArgumentException("Invalid file type. Please upload a CSV file.");
         }
 
+        Set<Object> seen = ConcurrentHashMap.newKeySet();
+
         try {
-            List<State> states = CSVParser.parse(file.getInputStream(), Charset.defaultCharset(), CSVFormat.DEFAULT)
+
+            int batchSize = 500; // Adjust the batch size as needed
+            AtomicInteger recordNumber = new AtomicInteger(0);
+             List<List<CSVRecord>> batches = CSVParser.parse(file.getInputStream(), Charset.defaultCharset(), CSVFormat.DEFAULT)
                     .stream().skip(1) // Skip the first row
-                    .map(record -> {
-                        State state = new State();
-                        state.setStateName(record.get(1).trim()); // Assuming the first column is "stateName"
-                        state.setIsActive(Boolean.parseBoolean(record.get(2))); // Assuming the second column is "isActive"
+                    .collect(Collectors.groupingBy(record -> recordNumber.getAndIncrement() / batchSize))
+                    .values().stream().toList();
 
-                        // Get the country name from the CSV file
-                        String countryName = record.get(0).trim(); // Assuming the third column is "countryName"
+            for (List<CSVRecord> batch : batches){
+                List<State> states = CSVParser.parse(file.getInputStream(), Charset.defaultCharset(), CSVFormat.DEFAULT)
+                        .stream().skip(1) // Skip the first row
+                        .map(record -> {
+                            String stateName = record.get(1).trim();
+                            Boolean isActive = Boolean.parseBoolean(record.get(2));
 
-                        // Try to find the country by name
-                        Country country = countryRepository.findByCountryNameIgnoreCase(countryName);
+                            Optional<State> existState = Optional.ofNullable(stateRepository.findByStateNameIgnoreCase(stateName));
 
-                        // If the country does not exist, create a new one
-                        if (country == null) {
-                            country = new Country();
-                            country.setCountryName(countryName.trim());
-                            country.setIsActive(true); // You can set the "isActive" flag as needed
-                            countryRepository.save(country);
-                        }
+                            if(existState.isPresent()){
+                                return null;
+                            }
 
-                        state.setCountry(country);
-                        return state;
-                    })
-                    .toList();
+                            else {
+                                State state = new State();
+                                state.setStateName(stateName); // Assuming the first column is "stateName"
+                                state.setIsActive(isActive); // Assuming the second column is "isActive"
+                                // Get the country name from the CSV file
+                                String countryName = record.get(0).trim(); // Assuming the third column is "countryName"
 
-            // Filter out duplicates by country name
-            List<State> nonDuplicateState = states.stream()
-                    .filter(distinctByKey(State::getStateName))
-                    .toList();
+                                // Try to find the country by name
+                                Country country = countryRepository.findByCountryNameIgnoreCase(countryName);
 
-            // Save the non-duplicate entities to the database
-            long uploadedRecordCount = nonDuplicateState.size();
-            stateRepository.saveAll(nonDuplicateState);
+                                // If the country does not exist, create a new one
+                                if (country == null) {
+                                    country = new Country();
+                                    country.setCountryName(countryName.trim());
+                                    country.setIsActive(true); // You can set the "isActive" flag as needed
+                                    countryRepository.save(country);
+                                }
 
-            return "CSV file uploaded successfully. " + uploadedRecordCount + " records uploaded.";
+                                state.setCountry(country);
+                                return state;
+                            }
 
+                        })
+                        .toList();
+
+                // Filter out duplicates by country name
+                List<State> nonDuplicateState = states.stream()
+                        .filter(distinctByKey(State::getStateName))
+                        .toList();
+
+                // Save the non-duplicate entities to the database
+                long uploadedRecordCount = nonDuplicateState.size();
+                stateRepository.saveAll(nonDuplicateState);
+
+            }
+
+            return "CSV file uploaded successfully records uploaded.";
 
         }catch (Exception e){
             return e.getMessage();

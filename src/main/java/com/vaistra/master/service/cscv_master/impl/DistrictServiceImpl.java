@@ -23,11 +23,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -181,6 +183,7 @@ public class DistrictServiceImpl implements DistrictService {
                 .build();
     }
 
+    @Transactional
     @Override
     public String uploadDistrictCSV(MultipartFile file) {
         if(file.isEmpty()){
@@ -194,45 +197,56 @@ public class DistrictServiceImpl implements DistrictService {
             List<District> districts = CSVParser.parse(file.getInputStream(), Charset.defaultCharset(), CSVFormat.DEFAULT)
                     .stream().skip(1) // Skip the first row
                     .map(record -> {
-                        District district = new District();
-                        district.setDistrictName(record.get(2).trim()); // Assuming the first column is "stateName"
-                        district.setIsActive(Boolean.parseBoolean(record.get(3))); // Assuming the second column is "isActive"
 
-                        // Get the State name from the CSV file
-                        String stateName = record.get(1).trim();
+                        String districtName = record.get(2).trim();
+                        Boolean isActive = Boolean.parseBoolean(record.get(3));
 
-                        // Try to find the State by name
-                        State state = stateRepository.findByStateNameIgnoreCase(stateName);
+                        Optional<District> existDistrict = Optional.ofNullable(districtRepository.findByDistrictNameIgnoreCase(districtName));
 
-                        // If the state does not exist, create a new one
-                        if(state == null){
-                            state = new State();
-                            state.setStateName(stateName.trim());
-                            state.setIsActive(true);
+                        if (existDistrict.isPresent()){
+                            return null;
+                        }
+                        else {
+                            District district = new District();
+
+                            district.setDistrictName(districtName); // Assuming the first column is "stateName"
+                            district.setIsActive(isActive); // Assuming the second column is "isActive"
 
                             // Get the State name from the CSV file
-                            String countryName = record.get(0).trim();
+                            String stateName = record.get(1).trim();
 
                             // Try to find the State by name
-                            Country country = countryRepository.findByCountryNameIgnoreCase(countryName);
+                            State state = stateRepository.findByStateNameIgnoreCase(stateName);
 
-                            // If the country does not exist, create a new one
-                            if (country == null) {
-                                country = new Country();
-                                country.setCountryName(countryName.trim());
-                                country.setIsActive(true); // You can set the "isActive" flag as needed
-                                countryRepository.save(country);
+                            // If the state does not exist, create a new one
+                            if(state == null){
+                                state = new State();
+                                state.setStateName(stateName.trim());
+                                state.setIsActive(true);
+
+                                // Get the State name from the CSV file
+                                String countryName = record.get(0).trim();
+
+                                // Try to find the State by name
+                                Country country = countryRepository.findByCountryNameIgnoreCase(countryName);
+
+                                // If the country does not exist, create a new one
+                                if (country == null) {
+                                    country = new Country();
+                                    country.setCountryName(countryName.trim());
+                                    country.setIsActive(true); // You can set the "isActive" flag as needed
+                                    countryRepository.save(country);
+                                }
+
+                                state.setCountry(country);
+                                stateRepository.save(state);
+
                             }
-
-                            state.setCountry(country);
-                            stateRepository.save(state);
+                            district.setState(state);
+                            district.setCountry(state.getCountry());
+                            return district;
 
                         }
-
-
-                        district.setState(state);
-                        district.setCountry(state.getCountry());
-                        return district;
                     })
                     .toList();
 

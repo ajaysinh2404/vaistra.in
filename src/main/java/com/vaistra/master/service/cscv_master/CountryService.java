@@ -26,5 +26,7 @@ public interface CountryService {
 
     public String uploadCountryCSV(MultipartFile file) throws IOException;
 
+    public String uploadCountryCSVBatch(MultipartFile file) throws IOException;
+
 
 }
